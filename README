@@ -1,17 +1,86 @@
-IO::CaptureOutput - capture STDOUT/STDERR from subprocesses and XS/C modules
+NAME
+    IO::CaptureOutput - capture STDOUT and STDERR from Perl code,
+    subprocesses or XS
 
-See the LICENSE section in lib/IO/Capture/Output.pm for usage and distribution
-rights
+VERSION
+    This documentation describes version 1.04_01.
 
-QUICK START:
+SYNOPSIS
+         use IO::CaptureOutput qw(capture capture_exec qxx);
+ 
+         my ($stdout, $stderr);
+         capture sub {noisy(@args)}, \$stdout, \$stderr;
+         sub noisy {
+             my @args = @_;
+             warn "this sub prints to stdout and stderr!";
+             ...
+             print "finished";
+         }
+ 
+         ($stdout, $stderr) = capture_exec( 'perl', '-e', 
+             'print "Hello "; print STDERR "World!"');
 
-commands in the source directory:
+DESCRIPTION
+    This module provides routines for capturing STDOUT and STDERR from
+    forked system calls (e.g. "system()", "fork()") and from XS/C modules.
 
-    perl Makefile.PL
-    make
-    make test
-    make install
-    Then delete the source directory tree since it's no longer needed.
+FUNCTIONS
+    The following functions are be exported on demand.
 
-    run 'perldoc IO::CaptureOutput' to read the full documentation.
+  "capture(\&subroutine, \$output, \$error)"
+    Captures everything printed to "STDOUT" and "STDERR" for the duration of
+    &subroutine. $output and $error are optional scalar references that will
+    contain "STDOUT" and "STDERR" respectively.
+
+    Returns the return value(s) of &subroutine. The sub is called in the
+    same context as "capture()" was called e.g.:
+
+         @rv = capture(sub {wantarray}); # returns true
+         $rv = capture(sub {wantarray}); # returns defined, but not true
+         capture(sub {wantarray});       # void, returns undef
+
+    "capture()" is able to trap output from subprocesses and C code, which
+    traditional "tie()" methods are unable to capture.
+
+    Note: "capture()" will only capture output that has been written or
+    flushed to the filehandle.
+
+  "capture_exec(@args)"
+    Captures and returns the output from "system(@args)". In scalar context,
+    "capture_exec()" will return what was printed to "STDOUT". In list
+    context, it returns what was printed to "STDOUT" and "STDERR"
+
+         my $output = capture_exec('perl', '-e', 'print "hello world"');
+ 
+         my ($output, $error) = capture_exec('perl', '-e', 'warn "Test"');
+
+    "capture_exec" passes its arguments to "CORE::system" it can take
+    advantage of the shell quoting, which makes it a handy and slightly more
+    portable alternative to backticks, piped "open()" and "IPC::Open3".
+
+    You can check the exit status of the "system()" call with the $?
+    variable. See perlvar for more information.
+
+  "qxx(@args)"
+    This is an alias of "capture_exec"
+
+SEE ALSO
+    *   IPC::Open3
+
+    *   IO::Capture
+
+    *   IO::Utils
+
+AUTHORS
+    *   Simon Flack <simonflk _AT_ cpan.org> (original author)
+
+    *   David Golden <dagolden _AT_ cpan.org> (co-maintainer since version
+        1.04)
+
+COPYRIGHT AND LICENSE
+    Portions copyright 2004, 2005 Simon Flack. Portions copyright 2007 David
+    Golden. All rights reserved.
+
+    You may distribute under the terms of either the GNU General Public
+    License or the Artistic License, as specified in the Perl README file.
 

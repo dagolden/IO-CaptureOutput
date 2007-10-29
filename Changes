@@ -1,13 +1,17 @@
 Revision history for IO::CaptureOutput
-$Id: Changes,v 1.4 2005/03/25 12:44:14 simonflack Exp $
 
-v1.03  2005-03-25
+1.04_01 Mon Oct 29 14:41:49 EDT 2007
+
+    - DAGOLDEN added as maintainer; updated build system for 
+      ongoing maintenance
+
+1.03  2005-03-25
     - Add t/pod_coverage.t
 
-v1.02  2004-11-22
+1.02  2004-11-22
     - add extra quoting on Win32 platform
     - Win32 won't unlink a file that is open in write mode, so close it first
     - minor POD tweaks
 
-v1.0  2004-11-21
+1.0  2004-11-21
     - Initial revision

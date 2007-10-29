@@ -6,7 +6,7 @@ use Exporter;
 @ISA = 'Exporter';
 @EXPORT_OK = qw/capture capture_exec qxx/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
-$VERSION = sprintf'%d.%02d', q$Revision: 1.3 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = '1.04_01';
 
 sub capture (&@) {
     my ($code, $output, $error) = @_;
@@ -95,13 +95,21 @@ sub DESTROY {
 
 1;
 
+__END__
+
 =pod
 
-=head1 NAME
+=begin wikidoc
 
-IO::CaptureOutput - capture STDOUT/STDERR from subprocesses and XS/C modules
+= NAME
 
-=head1 SYNOPSIS
+IO::CaptureOutput - capture STDOUT and STDERR from Perl code, subprocesses or XS
+
+= VERSION
+
+This documentation describes version %%VERSION%%.
+
+= SYNOPSIS
 
     use IO::CaptureOutput qw(capture capture_exec qxx);
 
@@ -114,79 +122,77 @@ IO::CaptureOutput - capture STDOUT/STDERR from subprocesses and XS/C modules
         print "finished";
     }
 
-    ($stdout, $stderr) = capture_exec('perl', '-e', 'print "Hello "; print STDERR "World!"');
+    ($stdout, $stderr) = capture_exec( 'perl', '-e', 
+        'print "Hello "; print STDERR "World!"');
 
-=head1 DESCRIPTION
+= DESCRIPTION
 
 This module provides routines for capturing STDOUT and STDERR from forked
-system calls (e.g. C<system()>, C<fork()>) and from XS/C modules.
+system calls (e.g. {system()}, {fork()}) and from XS/C modules.
 
-=head1 FUNCTIONS
+= FUNCTIONS
 
 The following functions are be exported on demand.
 
-=over 4
+== {capture(\&subroutine, \$output, \$error)}
 
-=item capture(\&subroutine, \$output, \$error)
+Captures everything printed to {STDOUT} and {STDERR} for the duration of
+{&subroutine}. {$output} and {$error} are optional scalar references that
+will contain {STDOUT} and {STDERR} respectively.
 
-Captures everything printed to C<STDOUT> and C<STDERR> for the duration of
-C<&subroutine>. C<$output> and C<$error> are optional scalar references that
-will contain C<STDOUT> and C<STDERR> respectively.
-
-Returns the return value(s) of C<&subroutine>. The sub is called in the same
-context as C<capture()> was called e.g.:
+Returns the return value(s) of {&subroutine}. The sub is called in the same
+context as {capture()} was called e.g.:
 
     @rv = capture(sub {wantarray}); # returns true
     $rv = capture(sub {wantarray}); # returns defined, but not true
     capture(sub {wantarray});       # void, returns undef
 
-C<capture()> is able to trap output from subprocesses and C code, which
-traditional C<tie()> methods are unable to capture.
+{capture()} is able to trap output from subprocesses and C code, which
+traditional {tie()} methods are unable to capture.
 
-B<Note:> C<capture()> will only capture output that has been written or flushed
+*Note:* {capture()} will only capture output that has been written or flushed
 to the filehandle.
 
-=item capture_exec(@args)
+== {capture_exec(@args)}
 
-Captures and returns the output from C<system(@args)>. In scalar context,
-C<capture_exec()> will return what was printed to C<STDOUT>. In list context,
-it returns what was printed to C<STDOUT> and C<STDERR>
+Captures and returns the output from {system(@args)}. In scalar context,
+{capture_exec()} will return what was printed to {STDOUT}. In list context,
+it returns what was printed to {STDOUT} and {STDERR}
 
     my $output = capture_exec('perl', '-e', 'print "hello world"');
 
     my ($output, $error) = capture_exec('perl', '-e', 'warn "Test"');
 
-C<capture_exec> passes its arguments to C<CORE::system> it can take advantage
+{capture_exec} passes its arguments to {CORE::system} it can take advantage
 of the shell quoting, which makes it a handy and slightly more portable
-alternative to backticks, piped C<open()> and C<IPC::Open3>.
+alternative to backticks, piped {open()} and {IPC::Open3}.
 
-You can check the exit status of the C<system()> call with the C<$?>
-variable. See L<perlvar> for more information.
+You can check the exit status of the {system()} call with the {$?}
+variable. See [perlvar] for more information.
 
-=item qxx(@args)
+== {qxx(@args)}
 
-This is an alias of C<capture_exec>
+This is an alias of {capture_exec}
 
-=back
+= SEE ALSO
 
-=head1 SEE ALSO
+* [IPC::Open3]
+* [IO::Capture]
+* [IO::Utils]
 
-IPC::Open3
+= AUTHORS
 
-IO::Capture
+* Simon Flack <simonflk _AT_ cpan.org> (original author)
+* David Golden <dagolden _AT_ cpan.org> (co-maintainer since version 1.04)
 
-IO::Utils
+= COPYRIGHT AND LICENSE
 
-=head1 AUTHOR
-
-Simon Flack E<lt>simonflk _AT_ cpan.orgE<gt>
-
-=head1 COPYRIGHT
-
-Copyright 2004, 2005 Simon Flack E<lt>simonflk _AT_ cpan.orgE<gt>.
-All rights reserved
+Portions copyright 2004, 2005 Simon Flack.  Portions copyright 2007 David
+Golden.  All rights reserved.
 
 You may distribute under the terms of either the GNU General Public License or
 the Artistic License, as specified in the Perl README file.
+
+=end wikidoc 
 
 =cut

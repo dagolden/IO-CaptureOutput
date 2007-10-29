@@ -1,11 +1,19 @@
+Build.PL
 Changes
+inc/Module/Build/DAGOLDEN.pm
+INSTALL
+lib/IO/CaptureOutput.pm
+lib/IO/CaptureOutput.pod
+LICENSE
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
+META.yml			Module meta-data (added by MakeMaker)
 README
-lib/IO/CaptureOutput.pm
 t/capture.t
 t/capture_exec.t
-t/pod.t
-t/pod_coverage.t
-META.yml                                 Module meta-data (added by MakeMaker)
+xt/critic.t
+xt/perlcriticrc
+xt/pod-coverage.t
+xt/pod.t
+xt/spelling.t

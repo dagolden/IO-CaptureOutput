@@ -1,0 +1,17 @@
+IO::CaptureOutput - capture STDOUT/STDERR from subprocesses and XS/C modules
+
+See the LICENSE section in lib/IO/Capture/Output.pm for usage and distribution
+rights
+
+QUICK START:
+
+commands in the source directory:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+    Then delete the source directory tree since it's no longer needed.
+
+    run 'perldoc IO::CaptureOutput' to read the full documentation.
+

@@ -79,4 +79,4 @@ int test_inline_c () { return 42; }
 void print_stdout (char* text) { printf("%s", text); fflush(stdout); }
  
 // print to stderr
-void print_stderr (char* text) { fprintf(stderr, "%s", text); }
+void print_stderr (char* text) { fprintf(stderr, "%s", text); fflush(stderr); }

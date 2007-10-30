@@ -1,6 +1,6 @@
 Revision history for IO::CaptureOutput
 
-1.04_01 Mon Oct 29 14:41:49 EDT 2007
+1.04_01 Mon Oct 29 22:56:45 EDT 2007
 
     - DAGOLDEN added as maintainer; updated build system and packaging for 
       ongoing maintenance

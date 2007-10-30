@@ -8,6 +8,10 @@ Revision history for IO::CaptureOutput
     - bugfix: capture.t would fail on Win32 if Inline::C was installed; 
       fixed the sample C code used in testing to flush stderr (RT#21712)
 
+    - bugfix: was failing on perl 5.8.0 due to extraneous space in call 
+      to open(); removing the space fixed the bug (RT#22044)
+      
+
 1.03  2005-03-25
     - Add t/pod_coverage.t
 

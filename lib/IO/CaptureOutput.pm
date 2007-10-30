@@ -14,8 +14,8 @@ sub capture (&@) {
         $_ = \do { my $s; $s = ''} unless ref $_;
         $$_ = '' unless defined($$_);
     }
-    my $capture_out = new IO::CaptureOutput::_proxy('STDOUT', $output);
-    my $capture_err = new IO::CaptureOutput::_proxy('STDERR', $error);
+    my $capture_out = IO::CaptureOutput::_proxy->new('STDOUT', $output);
+    my $capture_err = IO::CaptureOutput::_proxy->new('STDERR', $error);
     &$code();
 }
 
@@ -58,15 +58,15 @@ sub new {
 
     # Duplicate the filehandle
     my $saved = gensym;
-    open $saved, ">& $fh" or croak "Can't redirect <$fh> - $!";
+    open $saved, ">&$fh" or croak "Can't redirect <$fh> - $!";
 
     # Create replacement filehandle
     my $newio = gensym;
     (undef, my $newio_file) = tempfile;
-    open $newio, "+> $newio_file" or croak "Can't create temp file for $fh - $!";
+    open $newio, "+>$newio_file" or croak "Can't create temp file for $fh - $!";
 
     # Redirect
-    open $fhref, ">& ".fileno($newio) or croak "Can't redirect $fh - $!";
+    open $fhref, ">&".fileno($newio) or croak "Can't redirect $fh - $!";
 
     bless [$$, $fh, $saved, $capture, $newio, $newio_file], $class;
 }
@@ -80,7 +80,7 @@ sub DESTROY {
     # restore the original filehandle
     my $fh_ref = Symbol::qualify_to_ref($fh);
     select((select ($fh_ref), $|=1)[0]);
-    open $fh_ref, ">& ". fileno($saved) or croak "Can't restore $fh - $!";
+    open $fh_ref, ">&". fileno($saved) or croak "Can't restore $fh - $!";
 
     # transfer captured data to the scalar reference
     my ($capture, $newio, $newio_file) = @{$self}[3..5];

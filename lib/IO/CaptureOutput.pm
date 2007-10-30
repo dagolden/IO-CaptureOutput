@@ -8,7 +8,7 @@ use Exporter;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
 $VERSION = '1.04_01';
 
-sub capture (&@) {
+sub capture (&@) { ## no critic
     my ($code, $output, $error) = @_;
     for ($output, $error) {
         $_ = \do { my $s; $s = ''} unless ref $_;

@@ -12,6 +12,8 @@ add_stopwords( qw(
     README
     STDERR
     STDOUT
+    XS
+    co
 ));
 
 all_pod_files_spelling_ok();

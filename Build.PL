@@ -9,11 +9,12 @@ my $build = Module::Build::DAGOLDEN->new(
     create_readme       => 1,
     create_makefile_pl  => 'traditional',
     requires => {
-        'File::Temp' => 0.16, 
+        'File::Temp' => 0.16,  # many bug fixes
     },
     build_requires => {
-        'Test::More' => 0.62, 
+        'Test::More' => 0.62,  # newer API
     },
+    add_to_cleanup => [ '_Inline' ],
 );
 
 $build->create_build_script;

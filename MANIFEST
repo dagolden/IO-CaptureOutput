@@ -12,6 +12,8 @@ META.yml			Module meta-data (added by MakeMaker)
 README
 t/capture.t
 t/capture_exec.t
+t/noconsole.t
+t/wperl.t
 xt/critic.t
 xt/perlcriticrc
 xt/pod-coverage.t

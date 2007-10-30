@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 use Symbol qw/gensym/;
-use Win32;
 my ($save_out, $save_err);
 BEGIN { 
     $save_out = gensym();

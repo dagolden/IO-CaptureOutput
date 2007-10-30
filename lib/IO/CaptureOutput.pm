@@ -47,8 +47,11 @@ sub _shell_quote_win32 {
 # and then transfers it to a scalar reference
 package IO::CaptureOutput::_proxy;
 use File::Temp 'tempfile';
+use File::Basename qw/basename/;
 use Symbol qw/gensym qualify qualify_to_ref/;
 use Carp;
+
+sub _is_wperl { $^O eq 'MSWin32' && basename($^X) eq 'wperl.exe' }
 
 sub new {
     my $class = shift;
@@ -57,8 +60,11 @@ sub new {
     my $fhref = qualify_to_ref($fh);  # e.g. \*STDOUT
 
     # Duplicate the filehandle
-    my $saved = gensym;
-    open $saved, ">&$fh" or croak "Can't redirect <$fh> - $!";
+    my $saved;
+    if ( defined fileno($fh) && ! _is_wperl() ) {
+        $saved = gensym;
+        open $saved, ">&$fh" or croak "Can't redirect <$fh> - $!";
+    }
 
     # Create replacement filehandle
     my $newio = gensym;
@@ -80,7 +86,12 @@ sub DESTROY {
     # restore the original filehandle
     my $fh_ref = Symbol::qualify_to_ref($fh);
     select((select ($fh_ref), $|=1)[0]);
-    open $fh_ref, ">&". fileno($saved) or croak "Can't restore $fh - $!";
+    if (defined $saved) {
+        open $fh_ref, ">&". fileno($saved) or croak "Can't restore $fh - $!";
+    }
+    else {
+        close $fh_ref;
+    }
 
     # transfer captured data to the scalar reference
     my ($capture, $newio, $newio_file) = @{$self}[3..5];

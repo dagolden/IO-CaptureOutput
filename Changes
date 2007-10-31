@@ -1,6 +1,6 @@
 Revision history for IO::CaptureOutput
 
-1.04_02
+1.04_02 Wed Oct 31 00:52:49 EDT 2007
 
     - added support for capture() merging STDERR and STDOUT to the same
       scalar, i.e. "capture( \&foo, \$out, \$out )" (RT#24695)

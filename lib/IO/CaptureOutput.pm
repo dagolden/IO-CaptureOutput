@@ -4,7 +4,7 @@ use strict;
 use vars qw/$VERSION @ISA @EXPORT_OK %EXPORT_TAGS/;
 use Exporter;
 @ISA = 'Exporter';
-@EXPORT_OK = qw/capture capture_exec qxx/;
+@EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
 $VERSION = '1.04_02';
 
@@ -15,18 +15,29 @@ sub capture (&@) { ## no critic
         $$_ = '' unless defined($$_);
     }
     my $capture_out = IO::CaptureOutput::_proxy->new('STDOUT', $output);
-    my $capture_err = IO::CaptureOutput::_proxy->new('STDERR', $error);
+    my $capture_err = IO::CaptureOutput::_proxy->new(
+        'STDERR', $error, $output == $error ? 'STDOUT' : q{}
+    );
     &$code();
 }
 
 sub capture_exec {
     my @args = @_;
     my ($output, $error);
-    capture sub { system _shell_quote(@args)}, \$output, \$error;
+    capture sub { system _shell_quote(@args) }, \$output, \$error;
     return wantarray ? ($output, $error) : $output;
 }
 
 *qxx = \&capture_exec;
+
+sub capture_exec_combined {
+    my @args = @_;
+    my $output;
+    capture sub { system _shell_quote(@args) }, \$output, \$output;
+    return $output;
+}
+
+*qxy = \&capture_exec_combined;
 
 # extra quoting required on Win32 systems
 *_shell_quote = ($^O =~ /MSWin32/) ? \&_shell_quote_win32 : sub {@_};
@@ -55,7 +66,7 @@ sub _is_wperl { $^O eq 'MSWin32' && basename($^X) eq 'wperl.exe' }
 
 sub new {
     my $class = shift;
-    my ($fh, $capture) = @_;
+    my ($fh, $capture, $merge_fh) = @_;
     $fh       = qualify($fh);         # e.g. main::STDOUT
     my $fhref = qualify_to_ref($fh);  # e.g. \*STDOUT
 
@@ -66,12 +77,18 @@ sub new {
         open $saved, ">&$fh" or croak "Can't redirect <$fh> - $!";
     }
 
-    # Create replacement filehandle
-    my $newio = gensym;
-    (undef, my $newio_file) = tempfile;
-    open $newio, "+>$newio_file" or croak "Can't create temp file for $fh - $!";
+    # Create replacement filehandle if not merging
+    my ($newio, $newio_file);
+    if ( ! $merge_fh ) {
+        $newio = gensym;
+        (undef, $newio_file) = tempfile;
+        open $newio, "+>$newio_file" or croak "Can't create temp file for $fh - $!";
+    }
+    else {
+        $newio = qualify($merge_fh);
+    }
 
-    # Redirect
+    # Redirect (or merge)
     open $fhref, ">&".fileno($newio) or croak "Can't redirect $fh - $!";
 
     bless [$$, $fh, $saved, $capture, $newio, $newio_file], $class;
@@ -93,14 +110,16 @@ sub DESTROY {
         close $fh_ref;
     }
 
-    # transfer captured data to the scalar reference
+    # transfer captured data to the scalar reference if we didn't merge
     my ($capture, $newio, $newio_file) = @{$self}[3..5];
-    seek $newio, 0, 0;
-    $$capture = do {local $/; <$newio>};
-    close $newio;
+    if ($newio_file) {
+        seek $newio, 0, 0;
+        $$capture = do {local $/; <$newio>};
+        close $newio;
+    }
 
     # Cleanup
-    return unless -e $newio_file;
+    return unless defined $newio_file && -e $newio_file;
     unlink $newio_file or carp "Couldn't remove temp file '$newio_file' - $!";
 }
 
@@ -149,7 +168,7 @@ The following functions are be exported on demand.
 
 Captures everything printed to {STDOUT} and {STDERR} for the duration of
 {&subroutine}. {$output} and {$error} are optional scalar references that
-will contain {STDOUT} and {STDERR} respectively.
+will contain {STDOUT} and {STDERR} respectively. 
 
 Returns the return value(s) of {&subroutine}. The sub is called in the same
 context as {capture()} was called e.g.:
@@ -160,6 +179,10 @@ context as {capture()} was called e.g.:
 
 {capture()} is able to trap output from subprocesses and C code, which
 traditional {tie()} methods are unable to capture.
+
+If {$output} and {$error} refer to the same scalar, then {STDERR} will be
+merged to {STDOUT} before capturing and the scalar will hold the combined
+output of both.
 
 *Note:* {capture()} will only capture output that has been written or flushed
 to the filehandle.
@@ -174,16 +197,33 @@ it returns what was printed to {STDOUT} and {STDERR}
 
     my ($output, $error) = capture_exec('perl', '-e', 'warn "Test"');
 
-{capture_exec} passes its arguments to {CORE::system} it can take advantage
-of the shell quoting, which makes it a handy and slightly more portable
+{capture_exec} passes its arguments to {system()} and it can take advantage
+of shell quoting, which makes it a handy and slightly more portable
 alternative to backticks, piped {open()} and {IPC::Open3}.
 
 You can check the exit status of the {system()} call with the {$?}
 variable. See [perlvar] for more information.
 
+== {capture_exec_combined(@args)}
+
+This is just like {capture_exec}, except that it merges {STDERR} with {STDOUT}
+before capturing the output and returns a single scalar.
+
+    my $merged = capture_exec_combined(
+        'perl', '-e', 'print "hello\n"', 'warn "Test\n"
+    );
+
+*Note:* there is no guarantee that lines printed to {STDOUT} and {STDERR} in
+the subprocess will be in order. The actual order will depend largely on how IO
+buffering is handled in the subprocess.
+
 == {qxx(@args)}
 
 This is an alias of {capture_exec}
+
+== {qxy(@args)}
+
+This is an alias of {capture_exec_combined}
 
 = SEE ALSO
 

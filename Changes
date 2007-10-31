@@ -1,5 +1,16 @@
 Revision history for IO::CaptureOutput
 
+1.04_02
+
+    - added support for capture() merging STDERR and STDOUT to the same
+      scalar, i.e. "capture( \&foo, \$out, \$out )" (RT#24695)
+
+    - added capture_exec_combined() and alias qxy() to merge STDERR and STDOUT
+      for subprocess execution (RT#29289)
+    
+    - bugfix: stop crashing if output filehandles are previously closed or
+      if running without a console on MSWin32 (i.e. wperl.exe) (RT#23676)
+
 1.04_01 Mon Oct 29 22:56:45 EDT 2007
 
     - DAGOLDEN added as maintainer; updated build system and packaging for 

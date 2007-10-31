@@ -16,7 +16,7 @@ sub capture (&@) { ## no critic
     }
     my $capture_out = IO::CaptureOutput::_proxy->new('STDOUT', $output);
     my $capture_err = IO::CaptureOutput::_proxy->new(
-        'STDERR', $error, $output == $error ? 'STDOUT' : q{}
+        'STDERR', $error, $output == $error ? 'STDOUT' : undef
     );
     &$code();
 }
@@ -141,34 +141,37 @@ This documentation describes version %%VERSION%%.
 
 = SYNOPSIS
 
-    use IO::CaptureOutput qw(capture capture_exec qxx);
+    use IO::CaptureOutput qw(capture capture_exec);
 
     my ($stdout, $stderr);
-    capture sub {noisy(@args)}, \$stdout, \$stderr;
+
     sub noisy {
-        my @args = @_;
         warn "this sub prints to stdout and stderr!";
-        ...
-        print "finished";
+        print "arguments: @_";
     }
 
+    capture sub {noisy(@args)}, \$stdout, \$stderr;
+
     ($stdout, $stderr) = capture_exec( 'perl', '-e', 
-        'print "Hello "; print STDERR "World!"');
+        'print "Hello"; print STDERR "World!"');
 
 = DESCRIPTION
 
-This module provides routines for capturing STDOUT and STDERR from forked
-system calls (e.g. {system()}, {fork()}) and from XS/C modules.
+This module provides routines for capturing STDOUT and STDERR from perl 
+subroutines, forked system calls (e.g. {system()}, {fork()}) and from 
+XS or C modules.
 
 = FUNCTIONS
 
-The following functions are be exported on demand.
+The following functions will be exported on demand.
 
-== {capture(\&subroutine, \$output, \$error)}
+== capture()
+
+    capture(\&subroutine, \$stdout, \$stderr);
 
 Captures everything printed to {STDOUT} and {STDERR} for the duration of
-{&subroutine}. {$output} and {$error} are optional scalar references that
-will contain {STDOUT} and {STDERR} respectively. 
+{&subroutine}. {$stdout} and {$stderr} are optional scalars that will contain
+{STDOUT} and {STDERR} respectively. 
 
 Returns the return value(s) of {&subroutine}. The sub is called in the same
 context as {capture()} was called e.g.:
@@ -177,53 +180,57 @@ context as {capture()} was called e.g.:
     $rv = capture(sub {wantarray}); # returns defined, but not true
     capture(sub {wantarray});       # void, returns undef
 
-{capture()} is able to trap output from subprocesses and C code, which
-traditional {tie()} methods are unable to capture.
+{capture()} is able to capture output from subprocesses and C code, which
+traditional {tie()} methods of output capture are unable to do.
 
-If {$output} and {$error} refer to the same scalar, then {STDERR} will be
+If the two scalar references refer to the same scalar, then {STDERR} will be
 merged to {STDOUT} before capturing and the scalar will hold the combined
 output of both.
+
+    capture(\&subroutine, \$combined, \$combined);
 
 *Note:* {capture()} will only capture output that has been written or flushed
 to the filehandle.
 
-== {capture_exec(@args)}
+== capture_exec()
+
+    ($stdout, $stderr) = capture_exec(@args);
 
 Captures and returns the output from {system(@args)}. In scalar context,
 {capture_exec()} will return what was printed to {STDOUT}. In list context,
 it returns what was printed to {STDOUT} and {STDERR}
 
-    my $output = capture_exec('perl', '-e', 'print "hello world"');
+    $stdout = capture_exec('perl', '-e', 'print "hello world"');
 
-    my ($output, $error) = capture_exec('perl', '-e', 'warn "Test"');
+    ($stdout, $stderr) = capture_exec('perl', '-e', 'warn "Test"');
 
-{capture_exec} passes its arguments to {system()} and it can take advantage
-of shell quoting, which makes it a handy and slightly more portable
-alternative to backticks, piped {open()} and {IPC::Open3}.
+{capture_exec} passes its arguments to {system()} and on MSWin32 will protect
+arguments with shell quotes if necessary.  This makes it a handy and slightly
+more portable alternative to backticks, piped {open()} and {IPC::Open3}.
 
 You can check the exit status of the {system()} call with the {$?}
 variable. See [perlvar] for more information.
 
-== {capture_exec_combined(@args)}
+== capture_exec_combined()
 
-This is just like {capture_exec}, except that it merges {STDERR} with {STDOUT}
-before capturing the output and returns a single scalar.
-
-    my $merged = capture_exec_combined(
+    $combined = capture_exec_combined(
         'perl', '-e', 'print "hello\n"', 'warn "Test\n"
     );
 
-*Note:* there is no guarantee that lines printed to {STDOUT} and {STDERR} in
-the subprocess will be in order. The actual order will depend largely on how IO
+This is just like {capture_exec()}, except that it merges {STDERR} with {STDOUT}
+before capturing output and returns a single scalar.
+
+*Note:* there is no guarantee that text printed to {STDOUT} and {STDERR} in the
+subprocess will be appear in order. The actual order will depend on how IO
 buffering is handled in the subprocess.
 
-== {qxx(@args)}
+== qxx()
 
-This is an alias of {capture_exec}
+This is an alias for {capture_exec()}.
 
-== {qxy(@args)}
+== qxy()
 
-This is an alias of {capture_exec_combined}
+This is an alias for {capture_exec_combined()}.
 
 = SEE ALSO
 

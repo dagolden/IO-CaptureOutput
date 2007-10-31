@@ -11,6 +11,8 @@ Revision history for IO::CaptureOutput
     - bugfix: stop crashing if output filehandles are previously closed or
       if running without a console on MSWin32 (i.e. wperl.exe) (RT#23676)
 
+    - cleaned up documentation for consistency
+
 1.04_01 Mon Oct 29 22:56:45 EDT 2007
 
     - DAGOLDEN added as maintainer; updated build system and packaging for 
@@ -21,7 +23,6 @@ Revision history for IO::CaptureOutput
 
     - bugfix: was failing on perl 5.8.0 due to extraneous space in call 
       to open(); removing the space fixed the bug (RT#22044)
-      
 
 1.03  2005-03-25
     - Add t/pod_coverage.t

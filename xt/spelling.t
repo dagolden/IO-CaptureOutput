@@ -7,6 +7,7 @@ system( "ispell -v" ) and plan skip_all => "No ispell";
 
 set_spell_cmd( "ispell -l" );
 add_stopwords( qw(
+    MSWin
     CPAN
     DAGOLDEN
     README

@@ -39,14 +39,16 @@ ok(! defined($context), 'capture() calls subroutine in void context when appropr
 # Test external program, see t/capture_exec.t for more
 _reset;
 capture sub {system($^X, '-V:archname')}, \$out;
-like($out, qr/$^O/, 'capture() caught stdout from external command');
+like($out, "/$^O/", 'capture() caught stdout from external command');
 
 # check we still get stdout/stderr if the code dies
 eval {
     capture sub {print "."; print STDERR "5..4..3..2..1.."; die "self-terminating"}, \$out,\$err;
 };
-like($@, qr/^self-terminating at \Q@{[__FILE__]}/, '$@ still available after capture');
-ok($out eq '.' && $err eq '5..4..3..2..1..', 'capture() still populates output and error variables if the code dies');
+like($@, "/^self-terminating at " . quotemeta(__FILE__) . "/", 
+    '$@ still available after capture');
+ok($out eq '.' && $err eq '5..4..3..2..1..', 
+    'capture() still populates output and error variables if the code dies');
 
 # test fork()
 sub forked_output {

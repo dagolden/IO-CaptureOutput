@@ -72,9 +72,12 @@ sub new {
 
     # Duplicate the filehandle
     my $saved;
-    if ( defined fileno($fh) && ! _is_wperl() ) {
-        $saved = gensym;
-        open $saved, ">&$fh" or croak "Can't redirect <$fh> - $!";
+    {
+        no strict 'refs'; # for 5.005
+        if ( defined fileno($fh) && ! _is_wperl() ) {
+            $saved = gensym;
+            open $saved, ">&$fh" or croak "Can't redirect <$fh> - $!";
+        }
     }
 
     # Create replacement filehandle if not merging
@@ -89,7 +92,10 @@ sub new {
     }
 
     # Redirect (or merge)
-    open $fhref, ">&".fileno($newio) or croak "Can't redirect $fh - $!";
+    {
+        no strict 'refs'; # for 5.005
+        open $fhref, ">&".fileno($newio) or croak "Can't redirect $fh - $!";
+    }
 
     bless [$$, $fh, $saved, $capture, $newio, $newio_file], $class;
 }

@@ -1,5 +1,4 @@
 use strict;
-use warnings;
 use Symbol qw/gensym/;
 my ($save_out, $save_err);
 BEGIN { 

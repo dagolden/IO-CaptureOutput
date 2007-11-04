@@ -1,5 +1,11 @@
 Revision history for IO::CaptureOutput
 
+1.04_03 Sun Nov  4 11:35:57 EST 2007
+
+    - suppress warnings included in captured output when console output
+      handles were previously closed; only affects some versions/builds of 
+      perl on some platforms (found by Slaven Rezic 5.6.2 on FreeBSD 6.2)
+      
 1.04_02 Wed Oct 31 00:52:49 EDT 2007
 
     - added support for capture() merging STDERR and STDOUT to the same

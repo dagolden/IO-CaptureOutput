@@ -6,7 +6,7 @@ use Exporter;
 @ISA = 'Exporter';
 @EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
-$VERSION = '1.04_02';
+$VERSION = '1.04_03';
 
 sub capture (&@) { ## no critic
     my ($code, $output, $error) = @_;
@@ -119,6 +119,10 @@ sub DESTROY {
     # transfer captured data to the scalar reference if we didn't merge
     my ($capture, $newio, $newio_file) = @{$self}[3..5];
     if ($newio_file) {
+        # some versions of perl complain about reading from fd 1 or 2
+        # which could happen if STDOUT and STDERR were closed when $newio
+        # was opened, so we just squelch warnings here and continue
+        local $^W; 
         seek $newio, 0, 0;
         $$capture = do {local $/; <$newio>};
         close $newio;

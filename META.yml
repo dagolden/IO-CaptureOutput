@@ -1,6 +1,6 @@
 ---
 name: IO-CaptureOutput
-version: 1.04_03
+version: 1.05
 author:
   - 'David A. Golden <dagolden@cpan.org>'
 abstract: 'capture STDOUT and STDERR from Perl code, subprocesses or XS'
@@ -14,7 +14,7 @@ build_requires:
 provides:
   IO::CaptureOutput:
     file: lib/IO/CaptureOutput.pm
-    version: 1.04_03
+    version: 1.05
 generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

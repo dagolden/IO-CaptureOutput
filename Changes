@@ -1,5 +1,24 @@
 Revision history for IO::CaptureOutput
 
+1.05 Fri Nov 16 08:44:06 EST 2007
+
+    *** No changes since 1.04_03; key changes since 1.03 follows ***
+
+    - added support for capture() merging STDERR and STDOUT to the same
+      scalar, i.e. "capture( \&foo, \$out, \$out )" (RT#24695)
+
+    - added capture_exec_combined() and alias qxy() to merge STDERR and STDOUT
+      for subprocess execution (RT#29289)
+    
+    - bugfix: stop crashing if output filehandles are previously closed or
+      if running without a console on MSWin32 (i.e. wperl.exe) (RT#23676)
+
+    - bugfix: capture.t would fail on Win32 if Inline::C was installed; 
+      fixed the sample C code used in testing to flush stderr (RT#21712)
+
+    - bugfix: was failing on perl 5.8.0 due to extraneous space in call 
+      to open(); removing the space fixed the bug (RT#22044)
+
 1.04_03 Sun Nov  4 11:35:57 EST 2007
 
     - suppress warnings included in captured output when console output

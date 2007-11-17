@@ -88,7 +88,13 @@ __DATA__
 int test_inline_c () { return 42; }
 
 // print to stdout
-void print_stdout (char* text) { printf("%s", text); fflush(stdout); }
+void print_stdout (const char *template, ... ) { 
+    va_list ap;
+    va_start( ap, template );
+    vfprintf( stdout, template, ap );
+    va_end( ap );
+    fflush(stdout);
+}
  
 // print to stderr
 // avoiding fprintf because of segfaults on MSWin32 with some versions of

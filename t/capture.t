@@ -3,6 +3,9 @@
 use strict;
 use Test::More tests => 15;
 use IO::CaptureOutput 'capture';
+use Config;
+
+my $is_cl = $Config{cc} =~ /cl/i;
 
 my ($out, $err);
 sub _reset { $_ = '' for ($out, $err); 1};
@@ -74,32 +77,43 @@ SKIP: {
     skip "Inline->bind failed : $@", 3 if $@;
     ok(test_inline_c(), 'Inline->bind succeeded');
 
-    _reset && capture sub { print_stdout("Hello World") }, \$out, \$err;
+    _reset && capture sub { 
+        $is_cl ? cl_print_stdout("Hello World") 
+               : print_stdout("Hello World");
+    }, \$out, \$err;
     is($out, 'Hello World', 'captured stdout from C function');
 
-    _reset && capture sub { print_stderr("Testing stderr") }, \$out, \$err;
+    _reset && capture sub { 
+        $is_cl ? cl_print_stderr("Testing stderr") 
+               : print_stderr("Testing stderr");
+    }, \$out, \$err;
     is($err, 'Testing stderr', 'captured stderr from C function');
 }
-
 
 __DATA__
 // A basic sub to test that the bind() succeeded
 #include <stdio.h>
 int test_inline_c () { return 42; }
 
-// print to stdout
-void print_stdout (const char *template, ... ) { 
+// print to stdout -- regular
+void print_stdout (char* text) { printf("%s", text); fflush(stdout); }
+
+// print to stdout -- for MSVC
+void cl_print_stdout (const char *template, ... ) { 
     va_list ap;
     va_start( ap, template );
     vfprintf( stdout, template, ap );
     va_end( ap );
     fflush(stdout);
 }
- 
-// print to stderr
+
+// print to stdout -- regular
+void print_stderr (char* text) { fprintf(stderr, "%s", text); fflush(stderr); }
+
+// print to stderr -- for MSVC
 // avoiding fprintf because of segfaults on MSWin32 with some versions of
 // ActiveState and some combinations of MSVC compiler
-void print_stderr (const char *template, ... ) { 
+void cl_print_stderr (const char *template, ... ) { 
     va_list ap;
     va_start( ap, template );
     vfprintf( stderr, template, ap );

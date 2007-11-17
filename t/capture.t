@@ -68,7 +68,8 @@ SKIP: {
     skip "Inline::C not available", 3 if $@;
     eval {
         my $c_code = do {local $/; <DATA>};
-        Inline->bind( 'C' => $c_code, FORCE_BUILD => 1, BUILD_NOISY => 1 );
+#        Inline->bind( 'C' => $c_code, FORCE_BUILD => 1, BUILD_NOISY => 1 );
+        Inline->bind( 'C' => $c_code, FORCE_BUILD => 1);
     };
     skip "Inline->bind failed : $@", 3 if $@;
     ok(test_inline_c(), 'Inline->bind succeeded');

@@ -1,6 +1,12 @@
 Revision history for IO::CaptureOutput
 
-1.05_51 -- under development
+1.05_51 Sat Nov 17 13:36:39 EST 2007
+
+    - changed Inline::C code for printing to stderr to attempt to work around
+      a segfault bug on some MSWin32 systems (Alternative described by 
+      BrowserUK at http://www.perlmonks.org/?node_id=649021 )
+
+    - minor Perl::Critic cleanup to pass xt tests
 
 1.05 Fri Nov 16 08:44:06 EST 2007
 

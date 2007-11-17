@@ -68,7 +68,7 @@ SKIP: {
     skip "Inline::C not available", 3 if $@;
     eval {
         my $c_code = do {local $/; <DATA>};
-        Inline->bind( 'C' => $c_code, FORCE_BUILD => 1 );
+        Inline->bind( 'C' => $c_code, FORCE_BUILD => 1, BUILD_NOISY => 1 );
     };
     skip "Inline->bind failed : $@", 3 if $@;
     ok(test_inline_c(), 'Inline->bind succeeded');
@@ -83,7 +83,7 @@ SKIP: {
 
 __DATA__
 // A basic sub to test that the bind() succeeded
-#include <stdio.h>;
+#include <stdio.h>
 int test_inline_c () { return 42; }
 
 // print to stdout
@@ -91,8 +91,11 @@ void print_stdout (char* text) { printf("%s", text); fflush(stdout); }
  
 // print to stderr
 // avoiding fprintf because of segfaults on MSWin32 with some versions of
-// ActiveState and some combinations of MSVC compilers
-void print_stderr (char* text) { 
-    fputs( text, stderr );
+// ActiveState and some combinations of MSVC compiler
+void print_stderr (const char *template, ... ) { 
+    va_list ap;
+    va_start( ap, template );
+    vfprintf( stderr, template, ap );
+    va_end( ap );
     fflush(stderr);
 }

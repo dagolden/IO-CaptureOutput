@@ -1,5 +1,11 @@
 Revision history for IO::CaptureOutput
 
+1.05_52 Sat Nov 17 14:47:52 EST 2007
+
+    - changed Inline::C code for printing to stdout to match that for stderr;
+      works around a bug if the intalled MSVC++ version doesn't match the
+      version used to build ActiveState Perl on MSWin32.
+      
 1.05_51 Sat Nov 17 13:36:39 EST 2007
 
     - changed Inline::C code for printing to stderr to attempt to work around

@@ -3,7 +3,7 @@ NAME
     subprocesses or XS
 
 VERSION
-    This documentation describes version 1.05_51.
+    This documentation describes version 1.05_52.
 
 SYNOPSIS
          use IO::CaptureOutput qw(capture capture_exec);

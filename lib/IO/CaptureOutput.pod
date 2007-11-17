@@ -9,7 +9,7 @@ IO::CaptureOutput - capture STDOUT and STDERR from Perl code, subprocesses or XS
 
 =head1 VERSION
 
-This documentation describes version 1.05_52.
+This documentation describes version 1.05_53.
 
 =head1 SYNOPSIS
 

@@ -1,5 +1,10 @@
 Revision history for IO::CaptureOutput
 
+1.05_53 Sat Nov 17 18:45:08 EST 2007
+
+    - MSVC++ fixes for Inline::C testing breaks on other compilers; this
+      version uses separate C routines for MSVC++ and other compilers
+
 1.05_52 Sat Nov 17 14:47:52 EST 2007
 
     - changed Inline::C code for printing to stdout to match that for stderr;

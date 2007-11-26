@@ -1,5 +1,9 @@
 Revision history for IO::CaptureOutput
 
+1.06 Mon, 26 Nov 2007 16:40:40 EST
+
+    - no changes from 1.05_53
+
 1.05_53 Sat Nov 17 18:45:08 EST 2007
 
     - MSVC++ fixes for Inline::C testing breaks on other compilers; this

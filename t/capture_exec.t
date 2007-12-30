@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-#$Id: capture_exec.t,v 1.3 2004/11/22 19:51:09 simonflack Exp $
 use strict;
 use Test::More tests => 11;
 use IO::CaptureOutput qw/capture_exec capture_exec_combined qxx qxy/;
@@ -30,8 +29,8 @@ _reset;
 ok($out eq 'ok' && $? == 0, '$? set to 0 after successful execution');
 
 _reset;
-($out, $err) = capture_exec(@perl_e, 'print STDERR "not ok"; exit 5');
-ok($err eq 'not ok' && $? >> 8 == 5, '$? contains child error after failed execution');
+($out, $err) = capture_exec(@perl_e, 'exit 5');
+is($? >> 8, 5, '$? contains child error after failed execution');
 
 # check that output is returned if called in scalar context
 _reset;
@@ -41,12 +40,12 @@ is($out, 'stdout', 'capture_exec() returns stdout in scalar context');
 # merge STDOUT and STDERR
 _reset;
 $out = capture_exec_combined(@perl_e, q[select STDERR; $|++; select STDOUT; $|++; print "Hello World!\n"; print STDERR "PID=$$\n"]);
-like($out, '/^Hello World!/', 'capture_exec_combined() caught stdout from external command');
-like($out, '/PID=\d+$/', 'capture_exec_combined() caught stderr from external command');
+like($out, '/Hello World!/', 'capture_exec_combined() caught stdout from external command');
+like($out, '/PID=\d+/', 'capture_exec_combined() caught stderr from external command');
 
 # with alias
 _reset;
 $out = qxy(@perl_e, q[select STDERR; $|++; select STDOUT; $|++; print "Hello World!\n"; print STDERR "PID=$$\n"]);
-like($out, '/^Hello World!/', 'capture_exec_combined() caught stdout from external command');
-like($out, '/PID=\d+$/', 'capture_exec_combined() caught stderr from external command');
+like($out, '/Hello World!/', 'capture_exec_combined() caught stdout from external command');
+like($out, '/PID=\d+/', 'capture_exec_combined() caught stderr from external command');
 

@@ -1,5 +1,9 @@
 Revision history for IO::CaptureOutput
 
+1.0601
+
+    - relaxed capture_exec.t to avoid failing under noisy perl configurations
+
 1.06 Mon, 26 Nov 2007 16:40:40 EST
 
     - no changes from 1.05_53

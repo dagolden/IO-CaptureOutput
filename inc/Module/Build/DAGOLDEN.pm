@@ -8,7 +8,6 @@ use File::Spec;
 
 sub ACTION_distdir {
     my $self = shift;
-    $self->depends_on('buildtemplates');
     $self->depends_on('wikidoc');
     $self->SUPER::ACTION_distdir;
 }

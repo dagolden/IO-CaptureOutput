@@ -3,21 +3,21 @@ NAME
     subprocesses or XS
 
 VERSION
-    This documentation describes version 1.06.
+    This documentation describes version 1.0601.
 
 SYNOPSIS
          use IO::CaptureOutput qw(capture capture_exec);
- 
-         my ($stdout, $stderr);
- 
-         sub noisy {
+     
+     my ($stdout, $stderr);
+     
+     sub noisy {
              warn "this sub prints to stdout and stderr!";
              print "arguments: @_";
          }
- 
-         capture sub {noisy(@args)}, \$stdout, \$stderr;
- 
-         ($stdout, $stderr) = capture_exec( 'perl', '-e', 
+     
+     capture sub {noisy(@args)}, \$stdout, \$stderr;
+     
+     ($stdout, $stderr) = capture_exec( 'perl', '-e', 
              'print "Hello"; print STDERR "World!"');
 
 DESCRIPTION
@@ -62,8 +62,8 @@ FUNCTIONS
     context, it returns what was printed to "STDOUT" and "STDERR"
 
          $stdout = capture_exec('perl', '-e', 'print "hello world"');
- 
-         ($stdout, $stderr) = capture_exec('perl', '-e', 'warn "Test"');
+     
+     ($stdout, $stderr) = capture_exec('perl', '-e', 'warn "Test"');
 
     "capture_exec" passes its arguments to "system()" and on MSWin32 will
     protect arguments with shell quotes if necessary. This makes it a handy

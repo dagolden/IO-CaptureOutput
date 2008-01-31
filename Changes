@@ -1,5 +1,13 @@
 Revision history for IO::CaptureOutput
 
+1.07_01 Wed Jan 30 20:57:15 EST 2008
+
+    - added support for capturing to named files instead of anonymous
+      temporary ones (adapted from patch from Anton Berezin)
+
+    - added support to pass through STDOUT or STDERR without capture while
+      capturing the other one (adapted from patch from Anton Berezin)
+
 1.0601 Sun Dec 30 17:31:31 EST 2007
 
     - relaxed capture_exec.t to avoid failing under noisy perl configurations

@@ -6,17 +6,19 @@ use Exporter;
 @ISA = 'Exporter';
 @EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
-$VERSION = '1.0601';
+$VERSION = '1.07_01';
 
 sub capture (&@) { ## no critic
-    my ($code, $output, $error) = @_;
+    my ($code, $output, $error, $output_file, $error_file) = @_;
     for ($output, $error) {
         $_ = \do { my $s; $s = ''} unless ref $_;
         $$_ = '' unless defined($$_);
     }
-    my $capture_out = IO::CaptureOutput::_proxy->new('STDOUT', $output);
+    my $capture_out = IO::CaptureOutput::_proxy->new(
+        'STDOUT', $output, undef, $output_file
+    );
     my $capture_err = IO::CaptureOutput::_proxy->new(
-        'STDERR', $error, $output == $error ? 'STDOUT' : undef
+        'STDERR', $error, ($output == $error ? 'STDOUT' : undef), $error_file
     );
     &$code();
 }
@@ -66,7 +68,7 @@ sub _is_wperl { $^O eq 'MSWin32' && basename($^X) eq 'wperl.exe' }
 
 sub new {
     my $class = shift;
-    my ($fh, $capture, $merge_fh) = @_;
+    my ($fh, $capture, $merge_fh, $capture_file) = @_;
     $fh       = qualify($fh);         # e.g. main::STDOUT
     my $fhref = qualify_to_ref($fh);  # e.g. \*STDOUT
 
@@ -84,7 +86,11 @@ sub new {
     my ($newio, $newio_file);
     if ( ! $merge_fh ) {
         $newio = gensym;
-        (undef, $newio_file) = tempfile;
+        if ($capture_file) {
+            $newio_file = $capture_file;
+        } else {
+            (undef, $newio_file) = tempfile;
+        }
         open $newio, "+>$newio_file" or croak "Can't create temp file for $fh - $!";
     }
     else {
@@ -97,7 +103,7 @@ sub new {
         open $fhref, ">&".fileno($newio) or croak "Can't redirect $fh - $!";
     }
 
-    bless [$$, $fh, $saved, $capture, $newio, $newio_file], $class;
+    bless [$$, $fh, $saved, $capture, $newio, $newio_file, $capture_file], $class;
 }
 
 sub DESTROY {
@@ -130,6 +136,7 @@ sub DESTROY {
 
     # Cleanup
     return unless defined $newio_file && -e $newio_file;
+    return if $self->[6]; # the "temp" file was explicitly named
     unlink $newio_file or carp "Couldn't remove temp file '$newio_file' - $!";
 }
 
@@ -198,6 +205,14 @@ merged to {STDOUT} before capturing and the scalar will hold the combined
 output of both.
 
     capture(\&subroutine, \$combined, \$combined);
+
+If necessary, file names may be provided to capture output instead of
+anonymous, temporary files.
+
+    capture(\&subroutine, \$stdout, \$stderr, $out_file, $err_file);
+
+File names provided will be clobbered, overwriting any previous data, but
+will persist after the call to {capture} for inspection or other manipulation.
 
 *Note:* {capture()} will only capture output that has been written or flushed
 to the filehandle.

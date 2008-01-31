@@ -2,7 +2,7 @@
 #$Id: capture.t,v 1.3 2004/11/22 19:51:09 simonflack Exp $
 use strict;
 use Test::More tests => 15;
-use IO::CaptureOutput 'capture';
+use IO::CaptureOutput qw/capture/;
 use Config;
 
 my $is_cl = $Config{cc} =~ /cl/i;
@@ -89,6 +89,7 @@ SKIP: {
     }, \$out, \$err;
     is($err, 'Testing stderr', 'captured stderr from C function');
 }
+
 
 __DATA__
 // A basic sub to test that the bind() succeeded

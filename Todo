@@ -20,3 +20,5 @@
 
     capture sub { whatever() } => \$stdout, \$stderr, $outfile, $errfile;
 
+    - files are clobbered?
+    - errors if files are read-only

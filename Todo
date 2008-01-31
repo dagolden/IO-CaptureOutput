@@ -1,0 +1,22 @@
+# Todo for IO::CaptureOutput
+
+#--------------------------------------------------------------------------#
+# Bugs
+#--------------------------------------------------------------------------#
+
+#--------------------------------------------------------------------------#
+# Features
+#--------------------------------------------------------------------------#
+
+- allows thing selectively through to terminal
+    capture sub { whatever() } => \$stdout; # throw away STDERR
+    capture sub { whatever() } => undef, \$stderr; # throw away STDOUT
+    capture sub { whatever() }; # throw away all output
+    capture sub { whatever() } => \$stdout, \undef; # STDERR to terminal
+    capture sub { whatever() } => \undef, \$stderr; #STDOUT to terminal
+
+- allow things to be captured to a specified "temporary" file (that isn't 
+  unlinked)
+
+    capture sub { whatever() } => \$stdout, \$stderr, $outfile, $errfile;
+

@@ -1,14 +1,14 @@
 #!/usr/bin/perl -w
 #$Id: capture.t,v 1.3 2004/11/22 19:51:09 simonflack Exp $
 use strict;
-use Test::More tests => 15;
+use Test::More tests => 21;
 use IO::CaptureOutput qw/capture/;
 use Config;
 
 my $is_cl = $Config{cc} =~ /cl/i;
 
-my ($out, $err);
-sub _reset { $_ = '' for ($out, $err); 1};
+my ($out, $err, $out2, $err2);
+sub _reset { $_ = '' for ($out, $err, $out2, $err2); 1};
 
 # Basic test
 _reset && capture sub {print __PACKAGE__; print STDERR __FILE__}, \$out, \$err;
@@ -21,6 +21,27 @@ like($out, q{/^} . quotemeta(__PACKAGE__) . q{/},
     'captured stdout into one scalar');
 like($out, q{/} . quotemeta(__FILE__) . q{$/}, 
     'captured stderr into same scalar');
+
+# nesting and passing ref to undef to get passthrough
+_reset && capture sub {
+    capture sub { print __PACKAGE__; print STDERR __FILE__}, \undef, \$err2;
+}, \$out, \$err;
+like($out, q{/^} . quotemeta(__PACKAGE__) . q{/}, 
+    'stdout passed through to outer capture');
+like($err2, q{/} . quotemeta(__FILE__) . q{$/}, 
+    'captured stderr in inner');
+is($err, q{}, 'outer stderr empty');
+
+# repeat with error
+_reset && capture sub {
+    capture sub { print __PACKAGE__; print STDERR __FILE__}, \$out2, \undef;
+}, \$out, \$err;
+like($out2, q{/^} . quotemeta(__PACKAGE__) . q{/}, 
+    'captured stdout in inner');
+like($err, q{/} . quotemeta(__FILE__) . q{$/}, 
+    'stderr passed through to outer capture');
+is($out, q{}, 'outer stdout empty');
+
 
 # Check we still get return values
 _reset;

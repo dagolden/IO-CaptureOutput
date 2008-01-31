@@ -12,14 +12,19 @@ sub capture (&@) { ## no critic
     my ($code, $output, $error, $output_file, $error_file) = @_;
     for ($output, $error) {
         $_ = \do { my $s; $s = ''} unless ref $_;
-        $$_ = '' unless defined($$_);
+        $$_ = '' if $_ != \undef && !defined($$_);
     }
-    my $capture_out = IO::CaptureOutput::_proxy->new(
-        'STDOUT', $output, undef, $output_file
-    );
-    my $capture_err = IO::CaptureOutput::_proxy->new(
-        'STDERR', $error, ($output == $error ? 'STDOUT' : undef), $error_file
-    );
+    my ($capture_out, $capture_err);
+    if ( $output != \undef ) { 
+        $capture_out = IO::CaptureOutput::_proxy->new(
+            'STDOUT', $output, undef, $output_file
+        );
+    }
+    if ( $error != \undef ) { 
+        my $capture_err = IO::CaptureOutput::_proxy->new(
+            'STDERR', $error, ($output == $error ? 'STDOUT' : undef), $error_file
+        );
+    }
     &$code();
 }
 
@@ -200,6 +205,9 @@ context as {capture()} was called e.g.:
 {capture()} is able to capture output from subprocesses and C code, which
 traditional {tie()} methods of output capture are unable to do.
 
+*Note:* {capture()} will only capture output that has been written or flushed
+to the filehandle.
+
 If the two scalar references refer to the same scalar, then {STDERR} will be
 merged to {STDOUT} before capturing and the scalar will hold the combined
 output of both.
@@ -214,8 +222,23 @@ anonymous, temporary files.
 File names provided will be clobbered, overwriting any previous data, but
 will persist after the call to {capture} for inspection or other manipulation.
 
-*Note:* {capture()} will only capture output that has been written or flushed
-to the filehandle.
+By default, when no references are provided to hold STDOUT or STDERR, output
+is captured and silently discarded.
+
+    # Capture STDOUT, discard STDERR
+    capture(\&subroutine, \$stdout)
+
+    # Discard STDOUT, capture STDERR
+    capture(\&subroutine, undef, \$stderr)
+
+If either STDOUT or STDERR should be passed through to the terminal instead
+of captured, provide a reference to {\undef} instead of a capture variable.
+
+    # Capture STDOUT, display STDERR
+    capture(\&subroutine, \$stdout, \undef)
+
+    # Display STDOUT, capture STDERR
+    capture(\&subroutine, \undef, \$stderr)
 
 == capture_exec()
 

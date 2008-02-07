@@ -8,8 +8,4 @@
 # Features
 #--------------------------------------------------------------------------#
 
-- change docs from "capture sub {}" to "capture {}"
 
-- error handling
-    - files are clobbered?
-    - errors if files are read-only

@@ -6,14 +6,20 @@ use Exporter;
 @ISA = 'Exporter';
 @EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
-$VERSION = '1.07_01';
+$VERSION = '1.07_02';
 
 sub capture (&@) { ## no critic
     my ($code, $output, $error, $output_file, $error_file) = @_;
+
     for ($output, $error) {
         $_ = \do { my $s; $s = ''} unless ref $_;
         $$_ = '' if $_ != \undef && !defined($$_);
     }
+
+    # don't merge if both undef -- someone might still want to capture
+    # them separately in temp files
+    my $should_merge = defined $error && defined $output && $output == $error;
+
     my ($capture_out, $capture_err);
     if ( $output != \undef ) { 
         $capture_out = IO::CaptureOutput::_proxy->new(
@@ -22,7 +28,7 @@ sub capture (&@) { ## no critic
     }
     if ( $error != \undef ) { 
         my $capture_err = IO::CaptureOutput::_proxy->new(
-            'STDERR', $error, ($output == $error ? 'STDOUT' : undef), $error_file
+            'STDERR', $error, ($should_merge ? 'STDOUT' : undef), $error_file
         );
     }
     &$code();
@@ -96,7 +102,7 @@ sub new {
         } else {
             (undef, $newio_file) = tempfile;
         }
-        open $newio, "+>$newio_file" or croak "Can't create temp file for $fh - $!";
+        open $newio, "+>$newio_file" or croak "Can't write temp file for $fh - $!";
     }
     else {
         $newio = qualify($merge_fh);
@@ -172,7 +178,7 @@ This documentation describes version %%VERSION%%.
         print "arguments: @_";
     }
 
-    capture sub {noisy(@args)}, \$stdout, \$stderr;
+    capture { noisy(@args) } \$stdout, \$stderr;
 
     ($stdout, $stderr) = capture_exec( 'perl', '-e', 
         'print "Hello"; print STDERR "World!"');
@@ -195,12 +201,18 @@ Captures everything printed to {STDOUT} and {STDERR} for the duration of
 {&subroutine}. {$stdout} and {$stderr} are optional scalars that will contain
 {STDOUT} and {STDERR} respectively. 
 
+Uses a code prototype so the first argument can be specified directly within 
+brackets if desired.
+
+    # shorthand with prototype
+    capture { print __PACKAGE__ } \$stdout, \$stderr;
+
 Returns the return value(s) of {&subroutine}. The sub is called in the same
 context as {capture()} was called e.g.:
 
-    @rv = capture sub {wantarray}; # returns true
-    $rv = capture sub {wantarray}; # returns defined, but not true
-    capture sub {wantarray};       # void, returns undef
+    @rv = capture { wantarray } ; # returns true
+    $rv = capture { wantarray } ; # returns defined, but not true
+    capture { wantarray };       # void, returns undef
 
 {capture()} is able to capture output from subprocesses and C code, which
 traditional {tie()} methods of output capture are unable to do.

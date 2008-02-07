@@ -9,7 +9,7 @@ IO::CaptureOutput - capture STDOUT and STDERR from Perl code, subprocesses or XS
 
 =head1 VERSION
 
-This documentation describes version 1.07_01.
+This documentation describes version 1.08.
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ This documentation describes version 1.07_01.
          print "arguments: @_";
      }
  
-     capture sub {noisy(@args)}, \$stdout, \$stderr;
+     capture { noisy(@args) } \$stdout, \$stderr;
  
      ($stdout, $stderr) = capture_exec( 'perl', '-e', 
          'print "Hello"; print STDERR "World!"');
@@ -45,12 +45,18 @@ Captures everything printed to C<<< STDOUT >>> and C<<< STDERR >>> for the durat
 C<<< &subroutine >>>. C<<< $stdout >>> and C<<< $stderr >>> are optional scalars that will contain
 C<<< STDOUT >>> and C<<< STDERR >>> respectively. 
 
+C<<< capture() >>> uses a code prototype so the first argument can be specified directly within 
+brackets if desired.
+
+     # shorthand with prototype
+     capture { print __PACKAGE__ } \$stdout, \$stderr;
+
 Returns the return value(s) of C<<< &subroutine >>>. The sub is called in the same
 context as C<<< capture() >>> was called e.g.:
 
-     @rv = capture sub {wantarray}; # returns true
-     $rv = capture sub {wantarray}; # returns defined, but not true
-     capture sub {wantarray};       # void, returns undef
+     @rv = capture { wantarray } ; # returns true
+     $rv = capture { wantarray } ; # returns defined, but not true
+     capture { wantarray };       # void, returns undef
 
 C<<< capture() >>> is able to capture output from subprocesses and C code, which
 traditional C<<< tie() >>> methods of output capture are unable to do.
@@ -70,7 +76,7 @@ If desired, specific file names may be provided instead as additional options.
      capture \&subroutine, \$stdout, \$stderr, $out_file, $err_file;
 
 Files provided will be clobbered, overwriting any previous data, but
-will persist after the call to C<<< capture >>> for inspection or other manipulation.
+will persist after the call to C<<< capture() >>> for inspection or other manipulation.
 
 By default, when no references are provided to hold STDOUT or STDERR, output
 is captured and silently discarded.

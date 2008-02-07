@@ -3,7 +3,7 @@ NAME
     subprocesses or XS
 
 VERSION
-    This documentation describes version 1.07_01.
+    This documentation describes version 1.08.
 
 SYNOPSIS
          use IO::CaptureOutput qw(capture capture_exec);
@@ -15,7 +15,7 @@ SYNOPSIS
              print "arguments: @_";
          }
      
-     capture sub {noisy(@args)}, \$stdout, \$stderr;
+     capture { noisy(@args) } \$stdout, \$stderr;
      
      ($stdout, $stderr) = capture_exec( 'perl', '-e', 
              'print "Hello"; print STDERR "World!"');
@@ -35,12 +35,18 @@ FUNCTIONS
     &subroutine. $stdout and $stderr are optional scalars that will contain
     "STDOUT" and "STDERR" respectively.
 
+    "capture()" uses a code prototype so the first argument can be specified
+    directly within brackets if desired.
+
+         # shorthand with prototype
+         capture { print __PACKAGE__ } \$stdout, \$stderr;
+
     Returns the return value(s) of &subroutine. The sub is called in the
     same context as "capture()" was called e.g.:
 
-         @rv = capture sub {wantarray}; # returns true
-         $rv = capture sub {wantarray}; # returns defined, but not true
-         capture sub {wantarray};       # void, returns undef
+         @rv = capture { wantarray } ; # returns true
+         $rv = capture { wantarray } ; # returns defined, but not true
+         capture { wantarray };       # void, returns undef
 
     "capture()" is able to capture output from subprocesses and C code,
     which traditional "tie()" methods of output capture are unable to do.
@@ -61,7 +67,7 @@ FUNCTIONS
          capture \&subroutine, \$stdout, \$stderr, $out_file, $err_file;
 
     Files provided will be clobbered, overwriting any previous data, but
-    will persist after the call to "capture" for inspection or other
+    will persist after the call to "capture()" for inspection or other
     manipulation.
 
     By default, when no references are provided to hold STDOUT or STDERR,

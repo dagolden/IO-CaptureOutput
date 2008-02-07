@@ -6,7 +6,7 @@ use Exporter;
 @ISA = 'Exporter';
 @EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
-$VERSION = '1.07_02';
+$VERSION = '1.08';
 
 sub capture (&@) { ## no critic
     my ($code, $output, $error, $output_file, $error_file) = @_;
@@ -201,7 +201,7 @@ Captures everything printed to {STDOUT} and {STDERR} for the duration of
 {&subroutine}. {$stdout} and {$stderr} are optional scalars that will contain
 {STDOUT} and {STDERR} respectively. 
 
-Uses a code prototype so the first argument can be specified directly within 
+{capture()} uses a code prototype so the first argument can be specified directly within 
 brackets if desired.
 
     # shorthand with prototype
@@ -232,7 +232,7 @@ If desired, specific file names may be provided instead as additional options.
     capture \&subroutine, \$stdout, \$stderr, $out_file, $err_file;
 
 Files provided will be clobbered, overwriting any previous data, but
-will persist after the call to {capture} for inspection or other manipulation.
+will persist after the call to {capture()} for inspection or other manipulation.
 
 By default, when no references are provided to hold STDOUT or STDERR, output
 is captured and silently discarded.

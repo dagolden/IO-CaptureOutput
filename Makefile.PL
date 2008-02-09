@@ -8,8 +8,14 @@ WriteMakefile
           'EXE_FILES' => [],
           'VERSION_FROM' => 'lib/IO/CaptureOutput.pm',
           'PREREQ_PM' => {
+                           'IO::File' => 0,
+                           'File::Spec' => '3.27',
+                           'Symbol' => 0,
+                           'Exporter' => 0,
+                           'Carp' => 0,
                            'Test::More' => '0.62',
-                           'File::Temp' => '0.16'
+                           'File::Temp' => '0.16',
+                           'File::Basename' => 0
                          }
         )
 ;

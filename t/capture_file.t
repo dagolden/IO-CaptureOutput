@@ -4,7 +4,7 @@ use IO::CaptureOutput qw/capture/;
 use File::Temp qw/tempfile/;
 use Config;
 
-plan tests => 23;
+plan tests => 21;
 
 my ($out, $err);
 sub _reset { $_ = '' for ($out, $err); 1};
@@ -59,21 +59,25 @@ like(_readf($saved_out), q{/} . quotemeta(__PACKAGE__) . q{/}, 'merge: saved mer
 _touch($_) for ($saved_out, $saved_err);
 
 chmod 0444, $saved_out, $saved_err;
-ok( ! -w $saved_out, "error handling: stdout file set read-only");
-eval { capture sub {print __FILE__; print STDERR __PACKAGE__}, 
-    undef, undef, $saved_out
-};
-like( $@, q{/Can't write temp file for main::STDOUT/},
-    "error handling: can't write to stdout file"
-);
 
-ok( ! -w $saved_err, "error handling: stderr file set read-only");
-eval { capture sub {print __FILE__; print STDERR __PACKAGE__}, 
-    undef, undef, undef, $saved_err
-};
-like( $@, q{/Can't write temp file for main::STDERR/},
-    "error handling: can't write to stderr file"
-);
+SKIP: {
+    skip "Can't make temp files read-only to test error handling", 2
+        if ( -w $saved_out || -w $saved_err );
+
+    eval { capture sub {print __FILE__; print STDERR __PACKAGE__}, 
+        undef, undef, $saved_out
+    };
+    like( $@, q{/Can't write temp file for main::STDOUT/},
+        "error handling: can't write to stdout file"
+    );
+
+    eval { capture sub {print __FILE__; print STDERR __PACKAGE__}, 
+        undef, undef, undef, $saved_err
+    };
+    like( $@, q{/Can't write temp file for main::STDERR/},
+        "error handling: can't write to stderr file"
+    );
+}
 
 # restore permissions
 chmod 0666, $saved_out, $saved_err;

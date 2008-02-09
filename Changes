@@ -1,5 +1,14 @@
 Revision history for IO::CaptureOutput
 
+1.0801 Sat Feb  9 09:41:11 EST 2008
+    
+    - testfix: skip some error handling tests if temp files can't be made 
+      read-only (e.g. running test as root)
+
+    - added some prerequisites and meta information to Build.PL
+
+    - added an 'examples' directory
+    
 1.08 Wed Feb  6 22:43:37 EST 2008
 
     - added additional tests and revised documentation

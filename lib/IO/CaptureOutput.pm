@@ -28,12 +28,15 @@ sub capture (&@) { ## no critic
       0;
 
     my ($capture_out, $capture_err);
-    if ( $output != \undef ) { 
+
+    # undef means capture anonymously; anything other than \undef means 
+    # capture to that ref; \undef means skip capture
+    if ( !defined $output || $output != \undef ) { 
         $capture_out = IO::CaptureOutput::_proxy->new(
             'STDOUT', $output, undef, $output_file
         );
     }
-    if ( $error != \undef ) { 
+    if ( !defined $error || $error != \undef ) { 
         my $capture_err = IO::CaptureOutput::_proxy->new(
             'STDERR', $error, ($should_merge ? 'STDOUT' : undef), $error_file
         );

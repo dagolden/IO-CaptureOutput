@@ -1,5 +1,13 @@
 Revision history for IO::CaptureOutput
 
+1.08_50 Mon May 19 23:19:01 EDT 2008
+
+    - Changed: doesn't bother to read captured output back from file if no
+      scalar reference is provided to receive it
+      
+    - Fixed: 'capture { .. } undef, undef, $capture_file' now correctly
+      merges STDOUT and STDERR
+
 1.0801 Sat Feb  9 09:41:11 EST 2008
     
     - testfix: skip some error handling tests if temp files can't be made 

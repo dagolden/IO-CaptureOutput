@@ -4,7 +4,7 @@ use IO::CaptureOutput qw/capture/;
 use File::Temp qw/tempfile/;
 use Config;
 
-plan tests => 21;
+plan tests => 25;
 
 my ($out, $err);
 sub _reset { $_ = '' for ($out, $err); 1};
@@ -55,7 +55,16 @@ ok(!-e $saved_err, "merge: saved stderr file does not exist");
 like(_readf($saved_out), q{/^} . quotemeta(__FILE__) . q{/}, 'merge: saved merged file stdout content ok');
 like(_readf($saved_out), q{/} . quotemeta(__PACKAGE__) . q{/}, 'merge: saved merged file stderr content ok');
 
-# confirm error handling
+# don't capture to scalar, only to file
+unlink $saved_out, $saved_err;
+_reset && capture sub {print __FILE__; print STDERR __PACKAGE__}, 
+    undef, undef, $saved_out, $saved_err;
+ok(-s $saved_out, "fileonly: saved stdout file contains something");
+ok(!-e $saved_err, "fileonly: saved stderr file does not exist");
+like(_readf($saved_out), q{/^} . quotemeta(__FILE__) . q{/}, 'fileonly: saved merged file stdout content ok');
+like(_readf($saved_out), q{/} . quotemeta(__PACKAGE__) . q{/}, 'fileonly: saved merged file stderr content ok');
+
+# confirm error handling on read-only files
 _touch($_) for ($saved_out, $saved_err);
 
 chmod 0444, $saved_out, $saved_err;
@@ -65,14 +74,14 @@ SKIP: {
         if ( -w $saved_out || -w $saved_err );
 
     eval { capture sub {print __FILE__; print STDERR __PACKAGE__}, 
-        undef, undef, $saved_out
+        \$out, \$err, $saved_out
     };
     like( $@, q{/Can't write temp file for main::STDOUT/},
         "error handling: can't write to stdout file"
     );
 
     eval { capture sub {print __FILE__; print STDERR __PACKAGE__}, 
-        undef, undef, undef, $saved_err
+        \$out, \$err, undef, $saved_err
     };
     like( $@, q{/Can't write temp file for main::STDERR/},
         "error handling: can't write to stderr file"

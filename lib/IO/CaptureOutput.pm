@@ -6,7 +6,7 @@ use Exporter;
 @ISA = 'Exporter';
 @EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
-$VERSION = '1.08_50';
+$VERSION = '1.09';
 $VERSION = eval $VERSION;
 
 sub capture (&@) { ## no critic

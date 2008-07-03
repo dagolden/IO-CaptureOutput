@@ -1,8 +1,10 @@
 Revision history for IO::CaptureOutput
 
-1.09 Sat Jun 28 14:10:19 EDT 2008
+1.09 Thu Jul  3 09:17:35 EDT 2008
 
-    - No changes from 1.08_50
+    - Added: parameter validation and error messages
+
+    - Documented: examples of capturing only to a file and parameter errors
 
 1.08_50 Mon May 19 23:19:01 EDT 2008
 

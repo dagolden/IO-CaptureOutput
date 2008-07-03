@@ -1,18 +1,28 @@
 # $Id: CaptureOutput.pm,v 1.3 2005/03/25 12:44:14 simonflack Exp $
 package IO::CaptureOutput;
 use strict;
-use vars qw/$VERSION @ISA @EXPORT_OK %EXPORT_TAGS/;
+use vars qw/$VERSION @ISA @EXPORT_OK %EXPORT_TAGS $CarpLevel/;
 use Exporter;
+use Carp qw/croak/;
 @ISA = 'Exporter';
 @EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
 $VERSION = '1.09';
 $VERSION = eval $VERSION;
+$CarpLevel = 0; # help capture report errors at the right level
 
-sub capture (&@) { ## no critic
+sub _capture (&@) { ## no critic
     my ($code, $output, $error, $output_file, $error_file) = @_;
 
-    # if neither are defined, then capture to files only
+    # check for valid combinations of input
+    {
+      local $Carp::CarpLevel = 1;
+      my $error = _validate($output, $error, $output_file, $error_file);
+      croak $error if $error;
+    }
+
+    # if either $output or $error are defined, then we need a variable for 
+    # results; otherwise we only capture to files and don't waste memory
     if ( defined $output || defined $error ) {
       for ($output, $error) {
           $_ = \do { my $s; $s = ''} unless ref $_;
@@ -20,8 +30,10 @@ sub capture (&@) { ## no critic
       }
     }
 
-    # don't merge if both undef -- someone might still want to capture
-    # them separately in temp files
+    # merge if same refs for $output and $error or if both are undef -- 
+    # i.e. capture \&foo, undef, undef, $merged_file
+    # this means capturing into separate files *requires* at least one
+    # capture variable
     my $should_merge = 
       (defined $error && defined $output && $output == $error) || 
       ( !defined $output && !defined $error ) || 
@@ -41,13 +53,22 @@ sub capture (&@) { ## no critic
             'STDERR', $error, ($should_merge ? 'STDOUT' : undef), $error_file
         );
     }
+
+    # now that output capture is setup, call the subroutine
+    # results get read when IO::CaptureOutput::_proxy objects go out of scope
     &$code();
+}
+
+# Extra indirection for symmetry with capture_exec, etc.  Gets error reporting
+# to the right level
+sub capture (&@) { ## no critic
+    return &_capture; 
 }
 
 sub capture_exec {
     my @args = @_;
     my ($output, $error);
-    capture sub { system _shell_quote(@args) }, \$output, \$error;
+    _capture sub { system _shell_quote(@args) }, \$output, \$error;
     return wantarray ? ($output, $error) : $output;
 }
 
@@ -56,7 +77,7 @@ sub capture_exec {
 sub capture_exec_combined {
     my @args = @_;
     my $output;
-    capture sub { system _shell_quote(@args) }, \$output, \$output;
+    _capture sub { system _shell_quote(@args) }, \$output, \$output;
     return $output;
 }
 
@@ -75,6 +96,33 @@ sub _shell_quote_win32 {
         push @args, $_
     }
     return @args;
+}
+
+# detect errors and return an error message or empty string;
+sub _validate {
+    my ($output, $error, $output_file, $error_file) = @_;
+
+    # default to "ok"
+    my $msg = q{};
+
+    # \$out, \$out, $outfile, $errfile
+    if (    defined $output && defined $error  
+        &&  defined $output_file && defined $error_file
+        &&  $output == $error
+        &&  $output != \undef
+        &&  $output_file ne $error_file
+    ) {
+      $msg = "Merged STDOUT and STDERR, but specified different output and error files";
+    }
+    # undef, undef, $outfile, $errfile
+    elsif ( !defined $output && !defined $error  
+        &&  defined $output_file && defined $error_file
+        &&  $output_file ne $error_file
+    ) {
+      $msg = "Merged STDOUT and STDERR, but specified different output and error files";
+    }
+
+    return $msg;
 }
 
 # Captures everything printed to a filehandle for the lifetime of the object
@@ -253,6 +301,24 @@ is captured and silently discarded.
 
     # Discard STDOUT, capture STDERR
     capture \&subroutine, undef, \$stderr;
+
+However, even when using {undef}, output can be captured to specific files.
+
+    # Capture STDOUT to a specific file, discard STDERR
+    capture \&subroutine, \$stdout, undef, $outfile;
+
+    # Discard STDOUT, capture STDERR to a specific file
+    capture \&subroutine, undef, \$stderr, undef, $err_file;
+
+    # Discard both, capture merged output to a specific file
+    capture \&subroutine, undef, undef, $mergedfile;
+
+It is a fatal error to merge STDOUT and STDERR and request separate, specific
+files for capture.
+
+    # ERROR:
+    capture \&subroutine, \$stdout, \$stdout, $out_file, $err_file;
+    capture \&subroutine, undef, undef, $out_file, $err_file;
 
 If either STDOUT or STDERR should be passed through to the terminal instead of
 captured, provide a reference to undef -- {\undef} -- instead of a capture

@@ -14,6 +14,7 @@ README
 t/capture.t
 t/capture_exec.t
 t/capture_file.t
+t/errors.t
 t/noconsole.t
 t/scripts/wperl-capture.pl
 t/scripts/wperl-exec.pl

@@ -8,7 +8,7 @@ use Carp qw/croak/;
 @EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
 $VERSION = '1.09';
-$VERSION = eval $VERSION;
+$VERSION = eval $VERSION; ## no critic
 $CarpLevel = 0; # help capture report errors at the right level
 
 sub _capture (&@) { ## no critic

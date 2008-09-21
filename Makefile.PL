@@ -2,20 +2,20 @@
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
+          'PL_FILES' => {},
+          'INSTALLDIRS' => 'site',
           'NAME' => 'IO::CaptureOutput',
+          'EXE_FILES' => [],
           'VERSION_FROM' => 'lib/IO/CaptureOutput.pm',
           'PREREQ_PM' => {
-                           'Carp' => 0,
-                           'Exporter' => 0,
-                           'File::Basename' => 0,
-                           'File::Spec' => '3.27',
-                           'File::Temp' => '0.16',
                            'IO::File' => 0,
+                           'File::Spec' => '3.27',
                            'Symbol' => 0,
-                           'Test::More' => '0.62'
-                         },
-          'INSTALLDIRS' => 'site',
-          'EXE_FILES' => [],
-          'PL_FILES' => {}
+                           'Exporter' => 0,
+                           'Carp' => 0,
+                           'Test::More' => '0.62',
+                           'File::Temp' => '0.16',
+                           'File::Basename' => 0
+                         }
         )
 ;

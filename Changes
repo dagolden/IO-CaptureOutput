@@ -1,5 +1,12 @@
 Revision history for IO::CaptureOutput
 
+1.10 Sun Sep 21 09:34:31 EDT 2008
+
+    - Added: functions to capture output from external command now also
+      return a success flag and the exit code
+
+    - Documented: shorter, punchier synopsis
+
 1.09 Thu Jul  3 09:17:35 EDT 2008
 
     - Added: parameter validation and error messages

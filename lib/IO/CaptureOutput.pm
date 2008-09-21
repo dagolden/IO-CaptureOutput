@@ -68,8 +68,10 @@ sub capture (&@) { ## no critic
 sub capture_exec {
     my @args = @_;
     my ($output, $error);
-    _capture sub { system _shell_quote(@args) }, \$output, \$error;
-    return wantarray ? ($output, $error) : $output;
+    my $exit = _capture sub { system _shell_quote(@args) }, \$output, \$error;
+    my $success = ($exit == 0 ) ? 1 : 0 ;
+    $? = $exit;
+    return wantarray ? ($output, $error, $success, $exit) : $output;
 }
 
 *qxx = \&capture_exec;
@@ -77,8 +79,10 @@ sub capture_exec {
 sub capture_exec_combined {
     my @args = @_;
     my $output;
-    _capture sub { system _shell_quote(@args) }, \$output, \$output;
-    return $output;
+    my $exit = _capture sub { system _shell_quote(@args) }, \$output, \$output;
+    my $success = ($exit == 0 ) ? 1 : 0 ;
+    $? = $exit;
+    return wantarray ? ($output, $success, $exit) : $output;
 }
 
 *qxy = \&capture_exec_combined;
@@ -228,19 +232,19 @@ This documentation describes version %%VERSION%%.
 
 = SYNOPSIS
 
-    use IO::CaptureOutput qw(capture capture_exec);
+    use IO::CaptureOutput qw(capture qxx qxy);
 
-    my ($stdout, $stderr);
+    # STDOUT and STDERR separately
+    capture { noisy_sub(@args) } \$stdout, \$stderr;
 
-    sub noisy {
-        warn "this sub prints to stdout and stderr!";
-        print "arguments: @_";
-    }
+    # STDOUT and STDERR together
+    capture { noisy_sub(@args) } \$combined, \$combined;
 
-    capture { noisy(@args) } \$stdout, \$stderr;
+    # STDOUT and STDERR from external command
+    ($stdout, $stderr, $success) = qxx( @cmd );
 
-    ($stdout, $stderr) = capture_exec( 'perl', '-e', 
-        'print "Hello"; print STDERR "World!"');
+    # STDOUT and STDERR together from external command
+    ($combined, $success) = qxy( @cmd );
 
 = DESCRIPTION
 
@@ -332,31 +336,46 @@ variable.
 
 == capture_exec()
 
-    ($stdout, $stderr) = capture_exec(@args);
+    ($stdout, $stderr, $success, $exit_code) = capture_exec(@args);
 
 Captures and returns the output from {system(@args)}. In scalar context,
 {capture_exec()} will return what was printed to {STDOUT}. In list context,
-it returns what was printed to {STDOUT} and {STDERR}
+it returns what was printed to {STDOUT} and {STDERR} as well as a success
+flag and the exit value.
 
     $stdout = capture_exec('perl', '-e', 'print "hello world"');
 
-    ($stdout, $stderr) = capture_exec('perl', '-e', 'warn "Test"');
+    ($stdout, $stderr, $success, $exit_code) = 
+        capture_exec('perl', '-e', 'warn "Test"');
 
 {capture_exec} passes its arguments to {system()} and on MSWin32 will protect
 arguments with shell quotes if necessary.  This makes it a handy and slightly
 more portable alternative to backticks, piped {open()} and {IPC::Open3}.
 
-You can check the exit status of the {system()} call with the {$?}
-variable. See [perlvar] for more information.
+The {$success} flag returned will be true if the command ran successfully and
+false if it did not (if the command could not be run or if it ran and
+returned a non-zero exit value).  On failure, the raw exit value of the
+{system()} call is available both in the {$exit_code} returned and in the {$?}
+variable.
+
+  ($stdout, $stderr, $success, $exit_code) = 
+      capture_exec('perl', '-e', 'warn "Test" and exit 1');
+
+  if ( ! $success ) {
+      print "The exit code was " . ($exit_code >> 8) . "\n";
+  }
+
+See [perlvar] for more information on interpreting a child process
+exit code.
 
 == capture_exec_combined()
 
-    $combined = capture_exec_combined(
+    ($combined, $success, $exit_code) = capture_exec_combined(
         'perl', '-e', 'print "hello\n"', 'warn "Test\n"
     );
 
 This is just like {capture_exec()}, except that it merges {STDERR} with {STDOUT}
-before capturing output and returns a single scalar.
+before capturing output.
 
 *Note:* there is no guarantee that text printed to {STDOUT} and {STDERR} in the
 subprocess will be appear in order. The actual order will depend on how IO
@@ -375,6 +394,7 @@ This is an alias for {capture_exec_combined()}.
 * [IPC::Open3]
 * [IO::Capture]
 * [IO::Utils]
+* [IPC::System::Simple]
 
 = AUTHORS
 
@@ -383,7 +403,7 @@ This is an alias for {capture_exec_combined()}.
 
 = COPYRIGHT AND LICENSE
 
-Portions copyright 2004, 2005 Simon Flack.  Portions copyright 2007 David
+Portions copyright 2004, 2005 Simon Flack.  Portions copyright 2007, 2008 David
 Golden.  All rights reserved.
 
 You may distribute under the terms of either the GNU General Public License or

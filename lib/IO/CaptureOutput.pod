@@ -13,19 +13,19 @@ This documentation describes version 1.09.
 
 =head1 SYNOPSIS
 
-     use IO::CaptureOutput qw(capture capture_exec);
+     use IO::CaptureOutput qw(capture qxx qxy);
  
-     my ($stdout, $stderr);
+     # STDOUT and STDERR separately
+     capture { noisy_sub(@args) } \$stdout, \$stderr;
  
-     sub noisy {
-         warn "this sub prints to stdout and stderr!";
-         print "arguments: @_";
-     }
+     # STDOUT and STDERR together
+     capture { noisy_sub(@args) } \$combined, \$combined;
  
-     capture { noisy(@args) } \$stdout, \$stderr;
+     # STDOUT and STDERR from external command
+     ($stdout, $stderr, $success) = qxx( @cmd );
  
-     ($stdout, $stderr) = capture_exec( 'perl', '-e', 
-         'print "Hello"; print STDERR "World!"');
+     # STDOUT and STDERR together from external command
+     ($combined, $success) = qxy( @cmd );
 
 =head1 DESCRIPTION
 
@@ -87,6 +87,24 @@ is captured and silently discarded.
      # Discard STDOUT, capture STDERR
      capture \&subroutine, undef, \$stderr;
 
+However, even when using C<<< undef >>>, output can be captured to specific files.
+
+     # Capture STDOUT to a specific file, discard STDERR
+     capture \&subroutine, \$stdout, undef, $outfile;
+ 
+     # Discard STDOUT, capture STDERR to a specific file
+     capture \&subroutine, undef, \$stderr, undef, $err_file;
+ 
+     # Discard both, capture merged output to a specific file
+     capture \&subroutine, undef, undef, $mergedfile;
+
+It is a fatal error to merge STDOUT and STDERR and request separate, specific
+files for capture.
+
+     # ERROR:
+     capture \&subroutine, \$stdout, \$stdout, $out_file, $err_file;
+     capture \&subroutine, undef, undef, $out_file, $err_file;
+
 If either STDOUT or STDERR should be passed through to the terminal instead of
 captured, provide a reference to undef -- C<<< \undef >>> -- instead of a capture
 variable.
@@ -99,31 +117,46 @@ variable.
 
 =head2 capture_exec()
 
-     ($stdout, $stderr) = capture_exec(@args);
+     ($stdout, $stderr, $success, $exit_code) = capture_exec(@args);
 
 Captures and returns the output from C<<< system(@args) >>>. In scalar context,
 C<<< capture_exec() >>> will return what was printed to C<<< STDOUT >>>. In list context,
-it returns what was printed to C<<< STDOUT >>> and C<<< STDERR >>>
+it returns what was printed to C<<< STDOUT >>> and C<<< STDERR >>> as well as a success
+flag and the exit value.
 
      $stdout = capture_exec('perl', '-e', 'print "hello world"');
  
-     ($stdout, $stderr) = capture_exec('perl', '-e', 'warn "Test"');
+     ($stdout, $stderr, $success, $exit_code) = 
+         capture_exec('perl', '-e', 'warn "Test"');
 
 C<<< capture_exec >>> passes its arguments to C<<< system() >>> and on MSWin32 will protect
 arguments with shell quotes if necessary.  This makes it a handy and slightly
 more portable alternative to backticks, piped C<<< open() >>> and C<<< IPC::Open3 >>>.
 
-You can check the exit status of the C<<< system() >>> call with the C<<< $? >>>
-variable. See L<perlvar> for more information.
+The C<<< $success >>> flag returned will be true if the command ran successfully and
+false if it did not (if the command could not be run or if it ran and
+returned a non-zero exit value).  On failure, the raw exit value of the
+C<<< system() >>> call is available both in the C<<< $exit_code >>> returned and in the C<<< $? >>>
+variable.
+
+   ($stdout, $stderr, $success, $exit_code) = 
+       capture_exec('perl', '-e', 'warn "Test" and exit 1');
+ 
+   if ( ! $success ) {
+       print "The exit code was " . ($exit_code >> 8) . "\n";
+   }
+
+See L<perlvar> for more information on interpreting a child process
+exit code.
 
 =head2 capture_exec_combined()
 
-     $combined = capture_exec_combined(
+     ($combined, $success, $exit_code) = capture_exec_combined(
          'perl', '-e', 'print "hello\n"', 'warn "Test\n"
      );
 
 This is just like C<<< capture_exec() >>>, except that it merges C<<< STDERR >>> with C<<< STDOUT >>>
-before capturing output and returns a single scalar.
+before capturing output.
 
 B<Note:> there is no guarantee that text printed to C<<< STDOUT >>> and C<<< STDERR >>> in the
 subprocess will be appear in order. The actual order will depend on how IO
@@ -153,6 +186,10 @@ L<IO::Capture>
 
 L<IO::Utils>
 
+=item *
+
+L<IPC::System::Simple>
+
 =back
 
 =head1 AUTHORS
@@ -171,7 +208,7 @@ David Golden E<lt>dagolden _AT_ cpan.orgE<gt> (co-maintainer since version 1.04)
 
 =head1 COPYRIGHT AND LICENSE
 
-Portions copyright 2004, 2005 Simon Flack.  Portions copyright 2007 David
+Portions copyright 2004, 2005 Simon Flack.  Portions copyright 2007, 2008 David
 Golden.  All rights reserved.
 
 You may distribute under the terms of either the GNU General Public License or

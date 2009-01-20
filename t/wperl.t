@@ -8,10 +8,16 @@ if ( $^O ne 'MSWin32' ) {
     plan skip_all => "not MSWin32";
 }
 
-( my $wperl = $^X ) =~ s/perl\.exe$/wperl.exe/;
+( my $wperl = $^X ) =~ s/perl\.exe$/wperl.exe/i;
 
 if ( ! -x $wperl ) {
     plan skip_all => "no wperl.exe found";
+}
+
+sub is_vista {
+  require Win32;
+  my (undef, $major, $minor, $build, $id) = Win32::GetOSVersion();
+  return $id == 2 && $major > 5; # 2 for NT, 6 is 2k/XP/Server 2003
 }
 
 #--------------------------------------------------------------------------#
@@ -30,6 +36,10 @@ plan tests => 2 * @scripts;
 #--------------------------------------------------------------------------#
 
 for my $pl ( @scripts ) {
+  TODO: {
+    local $TODO = "wperl.exe can't capture child process output on Vista or Win7"
+      if _is_vista() && $pl eq 'wperl-exec.pl';
+
     my $pl_path = File::Spec->catfile('t', 'scripts', $pl);
 
     my $outputname = File::Temp->new();
@@ -46,6 +56,6 @@ for my $pl ( @scripts ) {
         ["STDOUT\n", "STDERR\n"], 
         "'$pl' capture correct" 
     );
-
+  }
 }
 

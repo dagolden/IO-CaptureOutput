@@ -14,7 +14,7 @@ if ( ! -x $wperl ) {
     plan skip_all => "no wperl.exe found";
 }
 
-sub is_vista {
+sub _is_vista {
   require Win32;
   my (undef, $major, $minor, $build, $id) = Win32::GetOSVersion();
   return $id == 2 && $major > 5; # 2 for NT, 6 is 2k/XP/Server 2003

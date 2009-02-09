@@ -1,5 +1,9 @@
 Revision history for IO::CaptureOutput
 
+1.11 in progress
+
+    - 
+
 1.1001 Tue Jan 20 18:32:27 EST 2009
 
     - Test fix: marked some wperl.exe tests as TODO on Windows Vista/Win7

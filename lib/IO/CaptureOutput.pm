@@ -49,7 +49,7 @@ sub _capture (&@) { ## no critic
         );
     }
     if ( !defined $error || $error != \undef ) { 
-        my $capture_err = IO::CaptureOutput::_proxy->new(
+        $capture_err = IO::CaptureOutput::_proxy->new(
             'STDERR', $error, ($should_merge ? 'STDOUT' : undef), $error_file
         );
     }

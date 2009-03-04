@@ -1,5 +1,9 @@
 Revision history for IO::CaptureOutput
 
+1.1101 Tue Mar  3 23:30:45 EST 2009
+
+    - Fixed Makefile.PL; no functional changes
+
 1.11 Mon Feb  9 21:47:37 EST 2009
 
     - Fixed: bug in creation of STDERR capture proxy object

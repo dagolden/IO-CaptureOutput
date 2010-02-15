@@ -4,3 +4,4 @@ blib/*
 _Inline/*
 *.tar.gz
 MANIFEST.bak
+/MYMETA.yml

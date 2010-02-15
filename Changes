@@ -1,5 +1,6 @@
 Revision history for IO::CaptureOutput
 
+1.1102
 
     - Fixed test that confused archname and osname (reported by Tux)
     

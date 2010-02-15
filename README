@@ -3,21 +3,21 @@ NAME
     subprocesses or XS
 
 VERSION
-    This documentation describes version 1.1101.
+    This documentation describes version 1.1102.
 
 SYNOPSIS
          use IO::CaptureOutput qw(capture qxx qxy);
-     
-     # STDOUT and STDERR separately
+ 
+         # STDOUT and STDERR separately
          capture { noisy_sub(@args) } \$stdout, \$stderr;
-     
-     # STDOUT and STDERR together
+ 
+         # STDOUT and STDERR together
          capture { noisy_sub(@args) } \$combined, \$combined;
-     
-     # STDOUT and STDERR from external command
+ 
+         # STDOUT and STDERR from external command
          ($stdout, $stderr, $success) = qxx( @cmd );
-     
-     # STDOUT and STDERR together from external command
+ 
+         # STDOUT and STDERR together from external command
          ($combined, $success) = qxy( @cmd );
 
 DESCRIPTION
@@ -75,8 +75,8 @@ FUNCTIONS
 
          # Capture STDOUT, discard STDERR
          capture \&subroutine, \$stdout;
-     
-     # Discard STDOUT, capture STDERR
+ 
+         # Discard STDOUT, capture STDERR
          capture \&subroutine, undef, \$stderr;
 
     However, even when using "undef", output can be captured to specific
@@ -84,11 +84,11 @@ FUNCTIONS
 
          # Capture STDOUT to a specific file, discard STDERR
          capture \&subroutine, \$stdout, undef, $outfile;
-     
-     # Discard STDOUT, capture STDERR to a specific file
+ 
+         # Discard STDOUT, capture STDERR to a specific file
          capture \&subroutine, undef, \$stderr, undef, $err_file;
-     
-     # Discard both, capture merged output to a specific file
+ 
+         # Discard both, capture merged output to a specific file
          capture \&subroutine, undef, undef, $mergedfile;
 
     It is a fatal error to merge STDOUT and STDERR and request separate,
@@ -104,8 +104,8 @@ FUNCTIONS
 
          # Capture STDOUT, display STDERR
          capture \&subroutine, \$stdout, \undef;
-     
-     # Display STDOUT, capture STDERR
+ 
+         # Display STDOUT, capture STDERR
          capture \&subroutine, \undef, \$stderr;
 
   capture_exec()
@@ -117,8 +117,8 @@ FUNCTIONS
     a success flag and the exit value.
 
          $stdout = capture_exec('perl', '-e', 'print "hello world"');
-     
-     ($stdout, $stderr, $success, $exit_code) = 
+ 
+         ($stdout, $stderr, $success, $exit_code) = 
              capture_exec('perl', '-e', 'warn "Test"');
 
     "capture_exec" passes its arguments to "system()" and on MSWin32 will
@@ -134,8 +134,8 @@ FUNCTIONS
 
        ($stdout, $stderr, $success, $exit_code) = 
            capture_exec('perl', '-e', 'warn "Test" and exit 1');
-     
-   if ( ! $success ) {
+ 
+       if ( ! $success ) {
            print "The exit code was " . ($exit_code >> 8) . "\n";
        }
 

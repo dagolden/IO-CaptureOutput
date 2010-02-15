@@ -62,7 +62,7 @@ ok(! defined($context), 'capture() calls subroutine in void context when appropr
 
 # Test external program, see t/capture_exec.t for more
 _reset;
-capture sub {system($^X, '-V:archname')}, \$out;
+capture sub {system($^X, '-V:osname')}, \$out;
 like($out, "/$^O/", 'capture() caught stdout from external command');
 
 # check we still get stdout/stderr if the code dies

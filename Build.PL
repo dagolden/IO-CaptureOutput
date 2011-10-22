@@ -29,7 +29,7 @@ my $build = Module::Build::DAGOLDEN->new(
             }],
         },
         resources => {
-            repository => 'http://dagolden.googlecode.com/svn/'
+            repository => 'git://github.com/dagolden/io-captureoutput.git'
         },
     },
 );

@@ -74,17 +74,22 @@ like($@, "/^self-terminating at " . quotemeta(__FILE__) . "/",
 ok($out eq '.' && $err eq '5..4..3..2..1..', 
     'capture() still populates output and error variables if the code dies');
 
-# test fork()
-sub forked_output {
-    fork or do {
-        print "forked";
-        print STDERR "Child pid $$";
-        exit;
-    };
-    select undef, undef, undef, 0.2;
+SKIP: {
+    my $can_fork = $Config{d_fork} || $Config{d_pseudofork}
+      || ( $^O eq "MSWin32" && $Config{useithreads} && $Config{ccflags} =~ /-DPERL_IMPLICIT_SYS\b/ );
+    skip "fork not available", 1 unless $can_fork;
+    # test fork()
+    sub forked_output {
+        fork or do {
+            print "forked";
+            print STDERR "Child pid $$";
+            exit;
+        };
+        select undef, undef, undef, 0.2;
+    }
+    capture \&forked_output, \$out, \$err;
+    ok($out eq 'forked' && $err =~ /^Child pid /, 'capture() traps fork() output');
 }
-capture \&forked_output, \$out, \$err;
-ok($out eq 'forked' && $err =~ /^Child pid /, 'capture() traps fork() output');
 
 # Test printing via C code
 SKIP: {

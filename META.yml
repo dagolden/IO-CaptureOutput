@@ -8,7 +8,7 @@ build_requires:
   Test::More: 0.62
 configure_requires:
   Module::Build: 0.36
-generated_by: 'Module::Build version 0.3603'
+generated_by: 'Module::Build version 0.3607'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -30,5 +30,5 @@ requires:
   Symbol: 0
 resources:
   license: http://dev.perl.org/licenses/
-  repository: http://dagolden.googlecode.com/svn/
+  repository: git://github.com/dagolden/io-captureoutput.git
 version: 1.1102

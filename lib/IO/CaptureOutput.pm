@@ -1,14 +1,16 @@
-# $Id: CaptureOutput.pm,v 1.3 2005/03/25 12:44:14 simonflack Exp $
-package IO::CaptureOutput;
 use strict;
-use vars qw/$VERSION @ISA @EXPORT_OK %EXPORT_TAGS $CarpLevel/;
+use warnings;
+
+package IO::CaptureOutput;
+# ABSTRACT: capture STDOUT and STDERR from Perl code, subprocesses or XS
+# VERSION
+
+use vars qw/@ISA @EXPORT_OK %EXPORT_TAGS $CarpLevel/;
 use Exporter;
 use Carp qw/croak/;
 @ISA = 'Exporter';
 @EXPORT_OK = qw/capture capture_exec qxx capture_exec_combined qxy/;
 %EXPORT_TAGS = (all => \@EXPORT_OK);
-$VERSION = '1.1102';
-$VERSION = eval $VERSION; ## no critic
 $CarpLevel = 0; # help capture report errors at the right level
 
 sub _capture (&@) { ## no critic
@@ -132,7 +134,7 @@ sub _validate {
 # Captures everything printed to a filehandle for the lifetime of the object
 # and then transfers it to a scalar reference
 package IO::CaptureOutput::_proxy;
-use File::Temp 'tempfile';
+use File::Temp 0.16 'tempfile';
 use File::Basename qw/basename/;
 use Symbol qw/gensym qualify qualify_to_ref/;
 use Carp;
@@ -224,7 +226,6 @@ __END__
 
 = NAME
 
-IO::CaptureOutput - capture STDOUT and STDERR from Perl code, subprocesses or XS
 
 = VERSION
 
@@ -247,6 +248,9 @@ This documentation describes version %%VERSION%%.
     ($combined, $success) = qxy( @cmd );
 
 = DESCRIPTION
+
+*This module is no longer recommended by the maintainer* - see
+[Capture::Tiny] instead.
 
 This module provides routines for capturing STDOUT and STDERR from perl 
 subroutines, forked system calls (e.g. {system()}, {fork()}) and from 
@@ -391,23 +395,11 @@ This is an alias for {capture_exec_combined()}.
 
 = SEE ALSO
 
+* [Capture::Tiny]
 * [IPC::Open3]
 * [IO::Capture]
 * [IO::Utils]
 * [IPC::System::Simple]
-
-= AUTHORS
-
-* Simon Flack <simonflk _AT_ cpan.org> (original author)
-* David Golden <dagolden _AT_ cpan.org> (co-maintainer since version 1.04)
-
-= COPYRIGHT AND LICENSE
-
-Portions copyright 2004, 2005 Simon Flack.  Portions copyright 2007, 2008 David
-Golden.  All rights reserved.
-
-You may distribute under the terms of either the GNU General Public License or
-the Artistic License, as specified in the Perl README file.
 
 =end wikidoc 
 

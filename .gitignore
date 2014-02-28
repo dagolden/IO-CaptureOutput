@@ -1,7 +1,2 @@
-Build
-_build/*
-blib/*
-_Inline/*
-*.tar.gz
-MANIFEST.bak
-/MYMETA.yml
+/IO-CaptureOutput*
+/.build

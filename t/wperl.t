@@ -1,7 +1,7 @@
 use strict;
 use IO::File;
 use File::Temp 0.16 ();
-use File::Spec;
+use File::Spec 3.27;
 use Test::More;
 
 if ( $^O ne 'MSWin32' ) {

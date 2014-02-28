@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 #$Id: capture.t,v 1.3 2004/11/22 19:51:09 simonflack Exp $
 use strict;
-use Test::More tests => 21;
+use Test::More 0.62 tests => 21;
 use IO::CaptureOutput qw/capture/;
 use Config;
 

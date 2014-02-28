@@ -1,5 +1,13 @@
 Revision history for IO::CaptureOutput
 
+{{$NEXT}}
+
+    [CHANGED]
+
+    - Updated metadata, repo and bugtracker
+
+    - Switched distribution management to Dist::Zilla
+
 1.1102 Mon Feb 15 07:36:53 EST 2010
 
     - Fixed: RT#45160 test that confused archname and osname

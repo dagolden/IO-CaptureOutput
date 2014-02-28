@@ -2,6 +2,10 @@ Revision history for IO::CaptureOutput
 
 {{$NEXT}}
 
+    [FIXED]
+
+    - Fixed rt.cpan.org #71775: test failure on non-threaded Win32 perls
+
     [CHANGED]
 
     - Updated metadata, repo and bugtracker

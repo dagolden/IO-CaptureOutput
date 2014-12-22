@@ -1,11 +1,12 @@
 use strict;
 use IO::File;
 use File::Temp 0.16 ();
-use File::Spec 3.27;
 use Test::More;
 
 if ( $^O ne 'MSWin32' ) {
     plan skip_all => "not MSWin32";
+} else {
+    eval "use File::Spec 3.27;"; die $@ if $@;
 }
 
 ( my $wperl = $^X ) =~ s/perl\.exe$/wperl.exe/i;

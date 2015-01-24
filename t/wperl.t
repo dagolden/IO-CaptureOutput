@@ -6,7 +6,8 @@ use Test::More;
 if ( $^O ne 'MSWin32' ) {
     plan skip_all => "not MSWin32";
 } else {
-    eval "use File::Spec 3.27;"; die $@ if $@;
+    require File::Spec;
+    File::Spec->VERSION(3.27);
 }
 
 ( my $wperl = $^X ) =~ s/perl\.exe$/wperl.exe/i;

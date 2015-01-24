@@ -68,6 +68,10 @@ unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
 delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
 
+if ( $^O eq 'MSWin32' ) {
+	$WriteMakefileArgs{PREREQ_PM}{'File::Spec'} = '3.27';
+}
+
 WriteMakefile(%WriteMakefileArgs);
 
 

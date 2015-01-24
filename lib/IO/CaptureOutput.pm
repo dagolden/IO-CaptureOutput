@@ -4,7 +4,7 @@ use warnings;
 package IO::CaptureOutput;
 # ABSTRACT: capture STDOUT and STDERR from Perl code, subprocesses or XS
 
-our $VERSION = '1.1104';
+our $VERSION = '1.1105';
 
 use vars qw/@ISA @EXPORT_OK %EXPORT_TAGS $CarpLevel/;
 use Exporter;

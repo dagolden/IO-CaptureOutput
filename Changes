@@ -2,6 +2,8 @@ Revision history for IO::CaptureOutput
 
 {{$NEXT}}
 
+1.1104    2015-01-23 22:03:57-05:00 America/New_York
+
     [PREREQS]
 
     - Drop File::Spec 3.27 prereq except on MSWin32

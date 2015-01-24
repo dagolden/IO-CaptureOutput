@@ -3,7 +3,8 @@ use warnings;
 
 package IO::CaptureOutput;
 # ABSTRACT: capture STDOUT and STDERR from Perl code, subprocesses or XS
-# VERSION
+
+our $VERSION = '1.1104';
 
 use vars qw/@ISA @EXPORT_OK %EXPORT_TAGS $CarpLevel/;
 use Exporter;
@@ -225,11 +226,6 @@ __END__
 =begin wikidoc
 
 = NAME
-
-
-= VERSION
-
-This documentation describes version %%VERSION%%.
 
 = SYNOPSIS
 

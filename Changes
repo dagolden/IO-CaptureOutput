@@ -2,6 +2,10 @@ Revision history for IO::CaptureOutput
 
 {{$NEXT}}
 
+    [PREREQS]
+
+    - Drop File::Spec 3.27 prereq except on MSWin32
+
 1.1103    2014-02-27 19:54:14-05:00 America/New_York
 
     [FIXED]
@@ -18,7 +22,7 @@ Revision history for IO::CaptureOutput
 
     - Fixed: RT#45160 test that confused archname and osname
       (reported by Dolmen and Tux)
-    
+
 1.1101 Tue Mar  3 23:30:45 EST 2009
 
     - Fixed Makefile.PL; no functional changes
@@ -48,23 +52,23 @@ Revision history for IO::CaptureOutput
 
     - Changed: doesn't bother to read captured output back from file if no
       scalar reference is provided to receive it
-      
+
     - Fixed: 'capture { .. } undef, undef, $capture_file' now correctly
       merges STDOUT and STDERR
 
 1.0801 Sat Feb  9 09:41:11 EST 2008
-    
-    - testfix: skip some error handling tests if temp files can't be made 
+
+    - testfix: skip some error handling tests if temp files can't be made
       read-only (e.g. running test as root)
 
     - added some prerequisites and meta information to Build.PL
 
     - added an 'examples' directory
-    
+
 1.08 Wed Feb  6 22:43:37 EST 2008
 
     - added additional tests and revised documentation
-    
+
 1.07_01 Wed Jan 30 20:57:15 EST 2008
 
     - added support for capturing to named files instead of anonymous
@@ -91,11 +95,11 @@ Revision history for IO::CaptureOutput
     - changed Inline::C code for printing to stdout to match that for stderr;
       works around a bug if the intalled MSVC++ version doesn't match the
       version used to build ActiveState Perl on MSWin32.
-      
+
 1.05_51 Sat Nov 17 13:36:39 EST 2007
 
     - changed Inline::C code for printing to stderr to attempt to work around
-      a segfault bug on some MSWin32 systems (Alternative described by 
+      a segfault bug on some MSWin32 systems (Alternative described by
       BrowserUK at http://www.perlmonks.org/?node_id=649021 )
 
     - minor Perl::Critic cleanup to pass xt tests
@@ -109,22 +113,22 @@ Revision history for IO::CaptureOutput
 
     - added capture_exec_combined() and alias qxy() to merge STDERR and STDOUT
       for subprocess execution (RT#29289)
-    
+
     - bugfix: stop crashing if output filehandles are previously closed or
       if running without a console on MSWin32 (i.e. wperl.exe) (RT#23676)
 
-    - bugfix: capture.t would fail on Win32 if Inline::C was installed; 
+    - bugfix: capture.t would fail on Win32 if Inline::C was installed;
       fixed the sample C code used in testing to flush stderr (RT#21712)
 
-    - bugfix: was failing on perl 5.8.0 due to extraneous space in call 
+    - bugfix: was failing on perl 5.8.0 due to extraneous space in call
       to open(); removing the space fixed the bug (RT#22044)
 
 1.04_03 Sun Nov  4 11:35:57 EST 2007
 
     - suppress warnings included in captured output when console output
-      handles were previously closed; only affects some versions/builds of 
+      handles were previously closed; only affects some versions/builds of
       perl on some platforms (found by Slaven Rezic 5.6.2 on FreeBSD 6.2)
-      
+
 1.04_02 Wed Oct 31 00:52:49 EDT 2007
 
     - added support for capture() merging STDERR and STDOUT to the same
@@ -132,7 +136,7 @@ Revision history for IO::CaptureOutput
 
     - added capture_exec_combined() and alias qxy() to merge STDERR and STDOUT
       for subprocess execution (RT#29289)
-    
+
     - bugfix: stop crashing if output filehandles are previously closed or
       if running without a console on MSWin32 (i.e. wperl.exe) (RT#23676)
 
@@ -140,13 +144,13 @@ Revision history for IO::CaptureOutput
 
 1.04_01 Mon Oct 29 22:56:45 EDT 2007
 
-    - DAGOLDEN added as maintainer; updated build system and packaging for 
+    - DAGOLDEN added as maintainer; updated build system and packaging for
       ongoing maintenance
 
-    - bugfix: capture.t would fail on Win32 if Inline::C was installed; 
+    - bugfix: capture.t would fail on Win32 if Inline::C was installed;
       fixed the sample C code used in testing to flush stderr (RT#21712)
 
-    - bugfix: was failing on perl 5.8.0 due to extraneous space in call 
+    - bugfix: was failing on perl 5.8.0 due to extraneous space in call
       to open(); removing the space fixed the bug (RT#22044)
 
 1.03  2005-03-25

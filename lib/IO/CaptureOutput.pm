@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 package IO::CaptureOutput;
-# ABSTRACT: capture STDOUT and STDERR from Perl code, subprocesses or XS
+# ABSTRACT: (DEPRECATED) capture STDOUT and STDERR from Perl code, subprocesses or XS
 
 our $VERSION = '1.1105';
 
